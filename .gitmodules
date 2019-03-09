@@ -1,0 +1,3 @@
+[submodule "tools/RegExp"]
+	path = tools/RegExp
+	url = https://github.com/chenxiaoyu233/RegExp
