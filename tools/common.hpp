@@ -10,9 +10,11 @@
 #include <set>
 #include <queue>
 #include <bitmap>
+#include <vector>
 using namespace std;
 
 // Tools
 #include "RegExp.h"
+#include "FA.h"
 
 #endif
