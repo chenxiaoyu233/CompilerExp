@@ -9,11 +9,14 @@ private:
 		// you could add something here
 		string content;
 		string symbolType;
+		size_t begin, end; // [begin, end)
+		LexicalItemInfo(string content, string symbolType, size_t begin, size_t end);
 	};
 	struct LexicalSymbolInfo {
 		string regExp;
 		string symbolType;
 		bool isReturn;
+		LexicalSymbolInfo(string regExp, string symbolType, bool isReturn);
 	};
 	struct LexicalErrorInfo {
 		enum LexicalErrorType {
@@ -22,10 +25,11 @@ private:
 		};
 		LexicalErrorType errorType;
 		size_t position;
+		LexicalErrorInfo(LexicalErrorType errorType, size_t position = -1);
 	};
 	FA dfa;
-	vector<LexicalItemInfo> itemList;
 	string contex;
+	vector<LexicalItemInfo> itemList;
 	vector<LexicalSymbolInfo*> symbolTypeList;
 public:
 	LexicalAnalyzer();
@@ -40,8 +44,9 @@ public:
 
 	// for a given context, preform the lexical analysis on it.
 	// @param string context: the context for lexical analysis
+	// @param bool isClean: clean or not clean the itemlist (used to store the answer).
 	// @return Lexicalerrorinfo: the error infomation for the lexical analysis.
-	LexicalErrorInfo LexicalAnalyze(string context, bool isClean);
+	LexicalErrorInfo LexicalAnalyze(string context, bool isClean = true);
 
 	// get the result for lexical analysis.
 	// @return vector<LexicalItemInfo>: return the lexical items in a vector.
