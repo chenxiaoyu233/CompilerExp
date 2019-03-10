@@ -19,12 +19,13 @@ int readFile () {
 	rewind (pFile);
 
 	// allocate memory to contain the whole file:
-	buffer = (char*) malloc (sizeof(char)*lSize);
+	buffer = (char*) malloc (sizeof(char)*(lSize + 1));
 	if (buffer == NULL) {fputs ("Memory error",stderr); exit (2);}
 
 	// copy the file into the buffer:
 	result = fread (buffer,1,lSize,pFile);
 	if (result != lSize) {fputs ("Reading error",stderr); exit (3);}
+	buffer[lSize] = '\0';
 
 	/* the whole file is now loaded in the memory buffer. */
 
@@ -39,6 +40,9 @@ int main() {
 	LexicalAnalyzer::LexicalErrorInfo errInfo = lex -> LexicalAnalyze(string(buffer));
 	if (errInfo.errorType != LexicalAnalyzer::LexicalErrorInfo::LexicalErrorType::NoError) {
 		fprintf(stderr, "something wrong\n");
+		fprintf(stderr, "position: %zu\n", errInfo.position);
+		fprintf(stderr, "char: %c\n", buffer[errInfo.position]);
+		fprintf(stderr, "buffer:\n%s\n", buffer);
 	}
 	vector<LexicalAnalyzer::LexicalItemInfo> items = lex -> Result();
 	for (auto item: items) {

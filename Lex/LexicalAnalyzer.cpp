@@ -18,13 +18,13 @@ LexicalAnalyzer::LexicalItemInfo::LexicalItemInfo(string content, string symbolT
 LexicalAnalyzer::LexicalErrorInfo::LexicalErrorInfo(LexicalErrorType errorType, size_t position):
 	errorType(errorType), position(position) { }
 
-LexicalAnalyzer::LexicalSymbolInfo::LexicalSymbolInfo(string regExp, string symbolType, bool isReturn):
-	regExp(regExp), symbolType(symbolType), isReturn(isReturn) { }
+LexicalAnalyzer::LexicalSymbolInfo::LexicalSymbolInfo(string regExp, string symbolType, bool isReturn, size_t level):
+	regExp(regExp), symbolType(symbolType), isReturn(isReturn), level(level) { }
 
-void LexicalAnalyzer::AddLexicalItem(string regExp, string symbolType, bool isReturn) {
+void LexicalAnalyzer::AddLexicalItem(string regExp, string symbolType, bool isReturn, size_t level) {
 
 	// store the infomation
-	LexicalSymbolInfo* info = new LexicalSymbolInfo(regExp, symbolType, isReturn);
+	LexicalSymbolInfo* info = new LexicalSymbolInfo(regExp, symbolType, isReturn, level);
 	symbolTypeList.push_back(info);
 
 	// construct the DFA
@@ -57,13 +57,21 @@ LexicalAnalyzer::LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context
 			if (lspt != NULL) {
 				string content = context.substr(lpt, rpt-lpt);
 				vector<void*> info = lspt -> GetInfo();
-                for (auto item: info) {
-                    LexicalSymbolInfo* infoPt = (LexicalSymbolInfo*) item;
-                    string symbolType = infoPt -> symbolType;
-                    if (infoPt -> isReturn)
-                        itemList.push_back(LexicalItemInfo(content, symbolType, lpt, rpt));
-                }
-                // reset the DFA
+				// get the maximal symbol level
+				size_t maxLevel = 0;
+				for (auto item: info) {
+					LexicalSymbolInfo* infoPt = (LexicalSymbolInfo*) item;
+					maxLevel = max(maxLevel, infoPt -> level);
+				}
+				// collect the symbolType
+				for (auto item: info) {
+					LexicalSymbolInfo* infoPt = (LexicalSymbolInfo*) item;
+					if (infoPt -> level != maxLevel) continue;
+					string symbolType = infoPt -> symbolType;
+					if (infoPt -> isReturn)
+						itemList.push_back(LexicalItemInfo(content, symbolType, lpt, rpt));
+				}
+				// reset the DFA
                 ipt = lpt = rpt;
                 lspt = NULL;
                 spt = dfa.start;

@@ -16,7 +16,8 @@ public:
 		string regExp;
 		string symbolType;
 		bool isReturn;
-		LexicalSymbolInfo(string regExp, string symbolType, bool isReturn);
+		size_t level;
+		LexicalSymbolInfo(string regExp, string symbolType, bool isReturn, size_t level);
 	};
 	struct LexicalErrorInfo {
 		enum LexicalErrorType {
@@ -40,8 +41,9 @@ public:
 	// @param string regExp: The regular expression to recognize the lexical item.
 	// @param string symbolType: The symbol to represent the lexical item.
 	// @param bool isReturn: report or not when find this kind of lexical item in the stream.
+	// @param size_t level: the level of the symbolType. (higher level one will cover the lower ones).
 	// P.S. all the regular expressions should be disjoint.
-	void AddLexicalItem(string regExp, string symbolType, bool isReturn = true);
+	void AddLexicalItem(string regExp, string symbolType, bool isReturn = true, size_t level = 0);
 
 	// for a given context, preform the lexical analysis on it.
 	// @param string context: the context for lexical analysis
