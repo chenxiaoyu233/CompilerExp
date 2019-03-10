@@ -30,7 +30,7 @@ void LexicalAnalyzer::AddLexicalItem(string regExp, string symbolType, bool isRe
 	// construct the DFA
 	FA fa =  RegExp(regExp).DFA();
 	for (auto st: fa.accept) {
-		st -> SetInfo(info);
+		st -> InfoPushBack(info);
 	}
 
 	// merge into dfa
@@ -38,12 +38,16 @@ void LexicalAnalyzer::AddLexicalItem(string regExp, string symbolType, bool isRe
 }
 
 LexicalAnalyzer::LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context, bool isClean) {
+	if (dfa.type == FAType::NFA) {
+		dfa = dfa.NtoD();
+	}
+
 	this -> context = context;
 	if(isClean) itemList.clear();
 
 	State* spt = dfa.start;
 	State* lspt = NULL;
-	for (size_t lpt = 0, rpt = 0, ipt = 0; ipt < context.length(); ipt++) {
+	for (size_t lpt = 0, rpt = 0, ipt = 0; ipt < context.length(); ) {
 		if (spt -> type == StateType::accept) {
 			lspt = spt;
 			rpt = ipt;
@@ -52,14 +56,21 @@ LexicalAnalyzer::LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context
 		if (spt == NULL) {
 			if (lspt != NULL) {
 				string content = context.substr(lpt, rpt-lpt);
-				LexicalSymbolInfo* infoPt = (LexicalSymbolInfo*)(lspt -> GetInfo());
-				string symbolType = infoPt -> symbolType;
-				if (infoPt -> isReturn)
-					itemList.push_back(LexicalItemInfo(content, symbolType, lpt, rpt));
+				vector<void*> info = lspt -> GetInfo();
+                for (auto item: info) {
+                    LexicalSymbolInfo* infoPt = (LexicalSymbolInfo*) item;
+                    string symbolType = infoPt -> symbolType;
+                    if (infoPt -> isReturn)
+                        itemList.push_back(LexicalItemInfo(content, symbolType, lpt, rpt));
+                }
+                // reset the DFA
+                ipt = lpt = rpt;
+                lspt = NULL;
+                spt = dfa.start;
 			} else {
 				return LexicalErrorInfo(LexicalErrorInfo::LexicalErrorType::MisMatch, ipt);
 			}
-		}
+        } else ipt++;
 	}
 	return LexicalErrorInfo(LexicalErrorInfo::LexicalErrorType::NoError);
 }
