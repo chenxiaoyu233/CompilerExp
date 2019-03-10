@@ -1,6 +1,6 @@
 #include "LexicalAnalyzer.hpp"
 
-LexicalAnalyzer::LexicalAnalyzer():dfa(FA(FAType::NFA)) {
+LexicalAnalyzer::LexicalAnalyzer():dfa(FA::EmptySet()) {
 	itemList.clear();
 	context.clear();
 	symbolTypeList.clear();
