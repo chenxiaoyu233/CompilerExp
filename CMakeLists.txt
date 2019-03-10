@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (Compiler)
 
+set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+
 # common.h
 include_directories ("${CMAKE_HOME_DIRECTORY}/tools")
 
@@ -15,8 +17,16 @@ add_subdirectory ("${CMAKE_HOME_DIRECTORY}/Lex")
 
 # options
 option(TestLex "compile to test Lexical Analyzer" OFF)
+option(NDEBUG "turn off debug" OFF)
 
-# compile
+# NDEBUG
+if (NDEBUG)
+  set (CMAKE_CXX_FLAGS "-O2 -DNDEBUG ${CMAKE_CXX_FLAGS}")
+else (NDEBUG)
+  set (CMAKE_CXX_FLAGS "-g ${CMAKE_CXX_FLAGS}")
+endif (NDEBUG)
+
+# TestLex
 if (TestLex)
   add_executable (TestLex "${CMAKE_HOME_DIRECTORY}/Lex/test/Main.cpp")
   target_link_libraries (TestLex RegExpLib Lex)
