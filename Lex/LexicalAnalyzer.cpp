@@ -2,7 +2,7 @@
 
 LexicalAnalyzer::LexicalAnalyzer():dfa(FA(FAType::NFA)) {
 	itemList.clear();
-	contex.clear();
+	context.clear();
 	symbolTypeList.clear();
 }
 
@@ -12,13 +12,13 @@ LexicalAnalyzer::~LexicalAnalyzer() {
 	}
 }
 
-LexicalAnalyzer::LexicalItemInfo(string content, string symbolType, size_t begin, size_t end):
+LexicalAnalyzer::LexicalItemInfo::LexicalItemInfo(string content, string symbolType, size_t begin, size_t end):
 	content(content), symbolType(symbolType), begin(begin), end(end) { }
 
-LexicalAnalyzer::LexicalErrorInfo(LexicalErrorType errorType, size_t position):
+LexicalAnalyzer::LexicalErrorInfo::LexicalErrorInfo(LexicalErrorType errorType, size_t position):
 	errorType(errorType), position(position) { }
 
-LexicalAnalyzer::LexicalSymbolInfo(string regExp, string symbolType, bool isReturn):
+LexicalAnalyzer::LexicalSymbolInfo::LexicalSymbolInfo(string regExp, string symbolType, bool isReturn):
 	regExp(regExp), symbolType(symbolType), isReturn(isReturn) { }
 
 void LexicalAnalyzer::AddLexicalItem(string regExp, string symbolType, bool isReturn) {
@@ -37,7 +37,7 @@ void LexicalAnalyzer::AddLexicalItem(string regExp, string symbolType, bool isRe
 	dfa = dfa | fa;
 }
 
-LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context, bool isClean) {
+LexicalAnalyzer::LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context, bool isClean) {
 	this -> context = context;
 	if(isClean) itemList.clear();
 
@@ -48,12 +48,13 @@ LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context, bool isClean) {
 			lspt = spt;
 			rpt = ipt;
 		}
-		spt = dfa.Next(spt);
+		spt = dfa.Next(spt, string() + context[ipt]);
 		if (spt == NULL) {
 			if (lspt != NULL) {
 				string content = context.substr(lpt, rpt-lpt);
-				string symbolType = lspt -> GetInfo() -> symbolType;
-				if (lspt -> GetInfo() -> isReturn)
+				LexicalSymbolInfo* infoPt = (LexicalSymbolInfo*)(lspt -> GetInfo());
+				string symbolType = infoPt -> symbolType;
+				if (infoPt -> isReturn)
 					itemList.push_back(LexicalItemInfo(content, symbolType, lpt, rpt));
 			} else {
 				return LexicalErrorInfo(LexicalErrorInfo::LexicalErrorType::MisMatch, ipt);
@@ -63,6 +64,6 @@ LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context, bool isClean) {
 	return LexicalErrorInfo(LexicalErrorInfo::LexicalErrorType::NoError);
 }
 
-vector<LexicalItemInfo> LexicalAnalyzer::Result() {
+vector<LexicalAnalyzer::LexicalItemInfo> LexicalAnalyzer::Result() {
 	return itemList;
 }

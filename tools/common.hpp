@@ -9,7 +9,7 @@
 #include <map>
 #include <set>
 #include <queue>
-#include <bitmap>
+#include <bitset>
 #include <vector>
 using namespace std;
 

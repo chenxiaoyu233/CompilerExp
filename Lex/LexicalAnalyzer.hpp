@@ -4,7 +4,7 @@
 #include "common.hpp"
 
 class LexicalAnalyzer {
-private:
+public:
 	struct LexicalItemInfo {
 		// you could add something here
 		string content;
@@ -27,8 +27,9 @@ private:
 		size_t position;
 		LexicalErrorInfo(LexicalErrorType errorType, size_t position = -1);
 	};
+private:
 	FA dfa;
-	string contex;
+	string context;
 	vector<LexicalItemInfo> itemList;
 	vector<LexicalSymbolInfo*> symbolTypeList;
 public:
@@ -46,11 +47,11 @@ public:
 	// @param string context: the context for lexical analysis
 	// @param bool isClean: clean or not clean the itemlist (used to store the answer).
 	// @return Lexicalerrorinfo: the error infomation for the lexical analysis.
-	LexicalErrorInfo LexicalAnalyze(string context, bool isClean = true);
+	LexicalAnalyzer::LexicalErrorInfo LexicalAnalyze(string context, bool isClean = true);
 
 	// get the result for lexical analysis.
 	// @return vector<LexicalItemInfo>: return the lexical items in a vector.
-	vector<LexicalItemInfo> Result();
+	vector<LexicalAnalyzer::LexicalItemInfo> Result();
 };
 
 #endif

@@ -1,2 +1,1 @@
-aux_source_directory (. LexSrc)
-add_library (Lex ${LexSrc})
+add_library (Lex LexicalAnalyzer.cpp)

@@ -1,5 +1,4 @@
 // this is a stub module for Lexical Analyzer
-#include "common.h"
 #include "LexicalAnalyzer.hpp"
 
 #include "LexicalDefinition.cpp"
@@ -37,11 +36,11 @@ int readFile () {
 int main() {
 	LexicalAnalyzer *lex = LexicalDefinition();
 	readFile();
-	LexicalAnalyze::LexicalErrorInfo errInfo = lex -> LexicalAnalyze(string(buffer));
+	LexicalAnalyzer::LexicalErrorInfo errInfo = lex -> LexicalAnalyze(string(buffer));
 	if (errInfo.errorType != LexicalAnalyzer::LexicalErrorInfo::LexicalErrorType::NoError) {
 		fprintf(stderr, "something wrong\n");
 	}
-	vector<LexicalItemInfo> items = lex -> Result();
+	vector<LexicalAnalyzer::LexicalItemInfo> items = lex -> Result();
 	for (auto item: items) {
 		printf("(%s, %s)\n", item.content.c_str(), item.symbolType.c_str());
 	}
