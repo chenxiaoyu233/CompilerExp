@@ -4,3 +4,4 @@ int main() {
 	double c = a + b;
 	return 0;
 }
+
