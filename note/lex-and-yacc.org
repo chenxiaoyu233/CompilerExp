@@ -1,0 +1,9 @@
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
+#+TITLE: Lex and Yacc
+
+* How did they get their names
+Lex: A lexical analyzer generator
+Yacc: Yet another compiler compiler
+
+* Some tricks to use lex
+  [[https://www.ibm.com/developerworks/library/l-lexyac/index.html][lex useage (IBM)]]
