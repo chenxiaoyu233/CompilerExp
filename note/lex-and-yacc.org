@@ -7,3 +7,15 @@ Yacc: Yet another compiler compiler
 
 * Some tricks to use lex
   [[https://www.ibm.com/developerworks/library/l-lexyac/index.html][lex useage (IBM)]]
+* Lex grammer
+  | Metacharacter | Matches                                         |
+  | .             | any character except newline                    |
+  | \n            | newline                                         |
+  | \*            | zero or more copies of the preceding expression |
+  | +             | one or more copies of the preceding expression  |
+  | \^            | beginning of line                               |
+  | \$            | end of line                                     |
+  | a\\b          | a or b                                          |
+  | (ab)+         | one or more copies of ab (grouping)             |
+  | "a+b"         | literal "a+b" (C escapes still work)            |
+  | []            | character class                                 |
