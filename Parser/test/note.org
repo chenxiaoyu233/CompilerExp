@@ -34,4 +34,4 @@
         ParseTreeLog(rt, content);
     }
   #+END_SRC
-  [[file:img/test1.png][test case 1 parse tree]]
+  [[file:img/test1.png]]
