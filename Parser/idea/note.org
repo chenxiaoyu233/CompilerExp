@@ -1,0 +1,25 @@
+* How to Represent the Characters ?
+  use a number $\Rightarrow$ int
+* How to Represent the String ?
+  #+BEGIN_SRC cpp
+  typedef list<int> String;
+  #+END_SRC
+* How to Represent the Productions ?
+  #+BEGIN_SRC cpp
+  typedef pair<int, list<int> > Production;
+  #+END_SRC
+* How to Represent the Grammer ?
+  Grammers $G = (P, I, T, S)$, where:
+  - $P$ is the Productions, vector<Prodocution>
+  - $I$ is the intermediates, store it as a string or bitset
+  - $T$ is the terminals, store it as a string or bitset
+  - $S$ is the start state, a character
+* How to Represent the State ?
+  State: [int{Production ID}, int{Posistion}, String{follow}]
+* How to Represent the Stack Content ?
+** The Stack
+   We want the stack to store both the State and the Character.
+** The Stack Content
+   - Stack Content (Basic Class)
+   - Character : public Stack Content
+   - State : public Stack Content
