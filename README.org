@@ -1,0 +1,14 @@
+* Why I Open This Object ?
+  I use this object to gain the ability to implement a compiler.
+  Actually, I want to finish this task in a more theorical way.
+  That is, I want to avoid the using of the traditional tools like =Lex= and =Yacc=.
+  I want to finish this project using the theory that I learn directly from books and papers.
+
+* What I Have Already Done ?
+** A Lex Analyzer
+   It read regular expressoins and convert them to a determined finite automata.
+   And I use this automata to capture the _tokens_ from the input stream.
+** A LR(k) Parser
+   It takes a Grammer $G$, and build a parse tree for each finite input string.
+   I learn this algorithm from <<On the Translation of Language from Left to Right>>
+   which is written by /Donald E. Knuth/
