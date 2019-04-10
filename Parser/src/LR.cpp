@@ -1,8 +1,20 @@
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+#include <queue>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <stack>
+#include <list>
+#include <set>
+using namespace std;
 
 typedef int Character;
-typedef list<Character> String;
+typedef vector<Character> String;
 struct StrCmp {
-    bool operator () (const String &a, const String &b) {
+    bool operator () (const String &a, const String &b) const {
         if (a.size() != b.size()) return a.size() < b.size();
         for (size_t i = 0, r = min(a.size(), b.size()); i < r; ++i) {
             if (a[i] != b[i]) return a[i] < b[i];
@@ -11,10 +23,17 @@ struct StrCmp {
     }
 };
 typedef set<String, StrCmp> FollowSet;
-struct ParseTree { Character X; vector<ParseTree*> chlid; };
-struct State { int id, pos; String follow; };
+struct ParseTree { 
+    Character X; vector<ParseTree*> chlid; 
+    ParseTree(Character X):X(X) { chlid.clear(); }
+    ParseTree(Character X, vector<ParseTree*> chlid):X(X), chlid(chlid) { }
+};
+struct State { 
+    int id, pos; String follow; 
+    State(int id, int pos, String follow):id(id), pos(pos), follow(follow) { }
+};
 struct StateCmp {
-    bool operator () (const State &a, const State &b) {
+    bool operator () (const State &a, const State &b) const {
         StrCmp sp;
         if (a.id == b.id) {
             if (a.pos == b.pos) {
@@ -24,7 +43,7 @@ struct StateCmp {
         }
         return a.id < b.id;
     }
-}
+};
 typedef set<State, StateCmp> StateSet;
 struct Production { Character lhs; String rhs; };
 struct Grammer { vector<Production> P; set<Character> I, T, cE; int size; }; // cE: could Empty
@@ -37,17 +56,17 @@ String characterPow(Character x, int k) {
     return ret;
 }
 
-String conCat(String &a, String &b) {
+String conCat(const String &a, const String &b) {
     String ret = a;
-    for (auto c: b) a.push_back(c);
+    for (auto c: b) ret.push_back(c);
     return ret;
 }
 
-String conCat(String &a, String &b, String &c) {
+String conCat(const String &a, const String &b, const String &c) {
     return conCat(conCat(a, b), c);
 }
 
-String subString(String &a, int l, int r) { // [l, r] 
+String subString(const String &a, int l, int r) { // [l, r] 
     String ret;
     if (l > r) return ret; // return an empty String
     for (int i = l; i <= r; i++) ret.push_back(a[i]);
@@ -64,7 +83,7 @@ String validPrefix(Grammer &G, String &s, int k) {
     for (auto c: s) {
         if (cnt == k) break;
         if (!G.cE.count(c)) cnt++;
-        ret += c;
+        ret.push_back(c);
     }
     return ret;
 }
@@ -111,7 +130,7 @@ void extendStateSet(Grammer &G, StateSet &dst, StateSet &src, int k) {
             FollowSet fs = extendFollowSet(G, conCat(subRString(G.P[s.id].rhs, s.pos+2), s.follow), true, k);
             for (size_t i = 0; i < G.P.size(); ++i) if (G.P[i].lhs == G.P[s.id].rhs[s.pos+1]) {
                 for (auto &flw: fs) {
-                    State cur{i, -1, flw};
+                    State cur{int(i), -1, flw};
                     if (!dst.count(cur)) {
                         dst.insert(cur);
                         q.push(cur);
@@ -125,7 +144,7 @@ void extendStateSet(Grammer &G, StateSet &dst, StateSet &src, int k) {
 void calcZ(Grammer &G, StateSet &Sp, FollowSet &Z, int k) {
     Z.clear();
     for (auto &s: Sp) if (s.pos + 1 < G.P[s.id].rhs.size()) {
-        FollowSet fs = extendStateSet(G, conCat(subRString(G.P[s.id].rhs, s.pos+1), s.follow), false, k);
+        FollowSet fs = extendFollowSet(G, conCat(subRString(G.P[s.id].rhs, s.pos+1), s.follow), false, k);
         for (auto &ns: fs) if (!Z.count(ns)) Z.insert(ns);
     }
 }
@@ -179,32 +198,35 @@ ParseTree* Parse(Grammer G, String s, int k) {
         // STEP 2
         calcZ(G, Sp, Z, k);
         calcZp(G, Sp, Zp);
-        if (isConflict(Z, Zp)) return NULL;
+        if (isConflict(G, Z, Zp)) return NULL;
         bool isMatch = false;
         String sbs = subString(s, pt+1, pt+k);
         if (Z.count(sbs)) {
             ++pt; CS.push(s[pt]);
-            TS.push(new ParseTree); TS.top().X = s[pt]; // new node on parse tree
+            TS.push(new ParseTree(s[pt])); // new node on parse tree
             isMatch = true;
         } else {
             for (int i = 0; i < G.size; ++i) if (Zp[i].count(sbs)) {
                 isMatch = true;
-                State ns = *(Zp[i].find(sbs));
-                int cnt = G.P[ns.id].rhs.size();
-                vector<ParseTree*> tmpPtr;
-                while (cnt--) { 
-                    tmpPtr.push_back(TS.top());
-                    CS.pop(); SS.pop(); TS.pop();
+                String follow = *(Zp[i].find(sbs));
+                for (auto ns: Sp) if (ns.follow == follow) {
+                    int cnt = G.P[ns.id].rhs.size();
+                    vector<ParseTree*> tmpPtr;
+                    while (cnt--) { 
+                        tmpPtr.push_back(TS.top());
+                        CS.pop(); SS.pop(); TS.pop();
+                    }
+                    reverse(tmpPtr.begin(), tmpPtr.end());
+                    TS.push(new ParseTree(G.P[ns.id].lhs, tmpPtr));
+                    CS.push(G.P[ns.id].lhs);
+                    break;
                 }
-                reverse(tmpPtr.begin(), tmpPtr.end());
-                TS.push(new ParseTree(G.P[ns.id].lhs, tmpPtr));
-                CS.push(G.P[ns.id].lhs);
                 break;
             }
         }
         // STEP3
         if (!isMatch) {
-            fprintf(stderr, "Wrong Syntax at position: %d\n", pt);
+            fprintf(stderr, "Wrong Syntax at position: %zu\n", pt);
             return NULL;
         }
         extendStateSet(G, Sp, SS.top(), k);
@@ -213,10 +235,15 @@ ParseTree* Parse(Grammer G, String s, int k) {
     delete[] Zp; // free the memory
 
     // return
-    StateSet finS{0, 1, characterPow(BUTTOM, k)};
-    if (SS.top().size == 1 && SS.top.count(finS)) { // accept
+    State finS{0, 1, characterPow(BUTTOM, k)};
+    if (SS.top().size() == 1 && SS.top().count(finS)) { // accept
         return TS.top();
     } 
     fprintf(stderr, "Could not read the end of program\n");
     return NULL;
 } 
+
+// use for test
+int main() {
+    return 0;
+}
