@@ -24,9 +24,9 @@ struct StrCmp {
 };
 typedef set<String, StrCmp> FollowSet;
 struct ParseTree { 
-    Character X; vector<ParseTree*> chlid; 
-    ParseTree(Character X):X(X) { chlid.clear(); }
-    ParseTree(Character X, vector<ParseTree*> chlid):X(X), chlid(chlid) { }
+    Character X; vector<ParseTree*> child; 
+    ParseTree(Character X):X(X) { child.clear(); }
+    ParseTree(Character X, vector<ParseTree*> child):X(X), child(child) { }
 };
 struct State { 
     int id, pos; String follow; 
@@ -180,6 +180,9 @@ StateSet nextStep(Grammer &G, StateSet &Sp, Character X) {
     }
     return ret;
 }
+// Debug
+void ParseTreeLog(ParseTree *rt, char **content);
+char **content;
 
 // here, the G and s are both adjusted
 ParseTree* Parse(Grammer G, String s, int k) {
@@ -190,7 +193,7 @@ ParseTree* Parse(Grammer G, String s, int k) {
     StateSet S0; 
     S0.insert(State{0, -1, characterPow(BUTTOM, k)});
     SS.push(S0);
-    size_t pt = 0; // pointer to Character in s
+    size_t pt = -1; // pointer to Character in s
     while (pt + k < s.size()) {
         // STEP 1
         StateSet Sp; 
@@ -209,18 +212,20 @@ ParseTree* Parse(Grammer G, String s, int k) {
             for (int i = 0; i < G.size; ++i) if (Zp[i].count(sbs)) {
                 isMatch = true;
                 String follow = *(Zp[i].find(sbs));
-                for (auto ns: Sp) if (ns.follow == follow) {
-                    int cnt = G.P[ns.id].rhs.size();
-                    vector<ParseTree*> tmpPtr;
-                    while (cnt--) { 
-                        tmpPtr.push_back(TS.top());
-                        CS.pop(); SS.pop(); TS.pop();
-                    }
-                    reverse(tmpPtr.begin(), tmpPtr.end());
-                    TS.push(new ParseTree(G.P[ns.id].lhs, tmpPtr));
-                    CS.push(G.P[ns.id].lhs);
-                    break;
+                int cnt = G.P[i].rhs.size();
+                vector<ParseTree*> tmpPtr;
+                while (cnt--) {
+                    tmpPtr.push_back(TS.top());
+                    CS.pop(); SS.pop(); TS.pop();
                 }
+                reverse(tmpPtr.begin(), tmpPtr.end());
+                TS.push(new ParseTree(G.P[i].lhs, tmpPtr));
+                // Debug
+                /*
+                ParseTree* tmpTree = TS.top();
+                ParseTreeLog(tmpTree, content);
+                */
+                CS.push(G.P[i].lhs);
                 break;
             }
         }
@@ -231,19 +236,82 @@ ParseTree* Parse(Grammer G, String s, int k) {
         }
         extendStateSet(G, Sp, SS.top(), k);
         SS.push(nextStep(G, Sp, CS.top()));
+        
+        if (pt + k + 1 == s.size()) {
+            State finS{0, 0, characterPow(BUTTOM, k)};
+            if (SS.top().count(finS)) { // accept
+                delete[] Zp; // free the me
+                return TS.top();
+            }
+        }
     }
     delete[] Zp; // free the memory
 
-    // return
-    State finS{0, 1, characterPow(BUTTOM, k)};
-    if (SS.top().size() == 1 && SS.top().count(finS)) { // accept
-        return TS.top();
-    } 
     fprintf(stderr, "Could not read the end of program\n");
     return NULL;
 } 
 
+int parseTreeLog(ParseTree *rt, int &cnt, char **content = NULL) {
+    int now = ++cnt;
+    if (content == NULL)
+        printf("%d [label = \"{<0> %d | {", cnt, rt -> X);
+    else printf("%d [label = \"{<0> %s | {", cnt, content[rt -> X]);
+    for (int i = 0; i < rt -> child.size(); ++i) {
+        if (i != 0) printf("|");
+        printf(" <%d> o ", i+1);
+    }
+    printf("}}\"]\n");
+
+    for (int i = 0; i < rt -> child.size(); ++i) {
+        printf("%d:%d -> %d:0\n", now, i+1, parseTreeLog(rt -> child[i], cnt, content));
+    }
+    return now;
+}
+
+void ParseTreeLog(ParseTree *rt, char **content = NULL) {
+    int cnt = 0;
+    printf("digraph{ \n");
+    printf("node [shape=record] \n");
+    parseTreeLog(rt, cnt, content);
+    printf("}\n");
+}
+
+void test() {
+    Grammer G {
+        { {0, {1, BUTTOM}},     // S -> E-|
+          {1, {4, 2}},          // E -> -T
+          {1, {2}},             // E -> T
+          {1, {1, 4, 2}},       // E -> E - T
+          {2, {3}},             // T -> P
+          {2, {2, 5, 3}},       // T -> T * P
+          {3, {6}},             // P -> a
+          {3, {7, 1, 8}} },     // P -> (E)
+        { 0, 1, 2, 3 },         // {S, E, T, P}
+        { -1, 4, 5, 6, 7, 8 },  // {-|, -, *, a, (, )}
+        { },
+        10
+    };
+    String s{
+        6, 4, 7, 4, 6, 5, 6, 4, 6, 8, BUTTOM
+//      a  -  (  -  a  *  a  -  a  )  -|
+    };
+    content = new char*[15];
+    for (int i = 0; i < 15; i++) content[i] = new char [3];
+    content[0][0] = 'S'; content[0][1] = '\0';
+    content[1][0] = 'E'; content[1][1] = '\0';
+    content[2][0] = 'T'; content[2][1] = '\0';
+    content[3][0] = 'P'; content[3][1] = '\0';
+    content[4][0] = '-'; content[4][1] = '\0';
+    content[5][0] = '*'; content[5][1] = '\0';
+    content[6][0] = 'a'; content[6][1] = '\0';
+    content[7][0] = '('; content[7][1] = '\0';
+    content[8][0] = ')'; content[8][1] = '\0';
+    ParseTree *rt = Parse(G, s, 1);
+    ParseTreeLog(rt, content);
+}
+
 // use for test
 int main() {
+    test();
     return 0;
 }
