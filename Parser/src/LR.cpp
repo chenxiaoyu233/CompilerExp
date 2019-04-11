@@ -46,7 +46,7 @@ struct StateCmp {
 };
 typedef set<State, StateCmp> StateSet;
 struct Production { Character lhs; String rhs; };
-struct Grammer { vector<Production> P; set<Character> I, T, cE; int size; }; // cE: could Empty
+struct Grammer { vector<Production> P; set<Character> I, T, cE; }; // cE: could Empty
 
 const Character BUTTOM = -1;
 
@@ -150,7 +150,7 @@ void calcZ(Grammer &G, StateSet &Sp, FollowSet &Z, int k) {
 }
 
 void calcZp(Grammer &G, StateSet &Sp, FollowSet *Zp) {
-    for (int i = 0; i < G.size; i++) Zp[i].clear();
+    for (int i = 0; i < G.P.size(); i++) Zp[i].clear();
     for (auto &s: Sp) if (s.pos + 1 == G.P[s.id].rhs.size()) {
         if (!Zp[s.id].count(s.follow)) Zp[s.id].insert(s.follow);
     }
@@ -158,10 +158,10 @@ void calcZp(Grammer &G, StateSet &Sp, FollowSet *Zp) {
 
 bool isConflict(Grammer &G, FollowSet &Z, FollowSet *Zp) {
     int cnt = 0;
-    for (auto &s: Z) for (int i = 0; i < G.size; ++i) if (Zp[i].count(s)) ++cnt;
-    for (int i = 0; i < G.size; ++i) for (auto &s: Zp[i]) {
+    for (auto &s: Z) for (int i = 0; i < G.P.size(); ++i) if (Zp[i].count(s)) ++cnt;
+    for (int i = 0; i < G.P.size(); ++i) for (auto &s: Zp[i]) {
         if (Z.count(s)) ++cnt;
-        for (int j = 0; j < G.size; ++j) if (j != i && Zp[j].count(s)) ++cnt;
+        for (int j = 0; j < G.P.size(); ++j) if (j != i && Zp[j].count(s)) ++cnt;
     }
     if (cnt != 0) {
         fprintf(stderr, "There may be at least %d conflicts in this grammer.\n", cnt);
@@ -189,7 +189,7 @@ ParseTree* Parse(Grammer G, String s, int k) {
     stack<Character>  CS; // Character Stack
     stack<StateSet>   SS; // State Set Stack
     stack<ParseTree*> TS; // Parse Root Stack
-    FollowSet Z, *Zp = new FollowSet[G.size];
+    FollowSet Z, *Zp = new FollowSet[G.P.size()];
     StateSet S0; 
     S0.insert(State{0, -1, characterPow(BUTTOM, k)});
     SS.push(S0);
@@ -209,7 +209,7 @@ ParseTree* Parse(Grammer G, String s, int k) {
             TS.push(new ParseTree(s[pt])); // new node on parse tree
             isMatch = true;
         } else {
-            for (int i = 0; i < G.size; ++i) if (Zp[i].count(sbs)) {
+            for (int i = 0; i < G.P.size(); ++i) if (Zp[i].count(sbs)) {
                 isMatch = true;
                 String follow = *(Zp[i].find(sbs));
                 int cnt = G.P[i].rhs.size();
@@ -276,7 +276,7 @@ void ParseTreeLog(ParseTree *rt, char **content = NULL) {
     printf("}\n");
 }
 
-void test() {
+void test1() {
     Grammer G {
         { {0, {1, BUTTOM}},     // S -> E-|
           {1, {4, 2}},          // E -> -T
@@ -288,8 +288,7 @@ void test() {
           {3, {7, 1, 8}} },     // P -> (E)
         { 0, 1, 2, 3 },         // {S, E, T, P}
         { -1, 4, 5, 6, 7, 8 },  // {-|, -, *, a, (, )}
-        { },
-        10
+        { }
     };
     String s{
         6, 4, 7, 4, 6, 5, 6, 4, 6, 8, BUTTOM
@@ -312,6 +311,6 @@ void test() {
 
 // use for test
 int main() {
-    test();
+    test1();
     return 0;
 }
