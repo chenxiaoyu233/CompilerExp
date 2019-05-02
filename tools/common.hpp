@@ -11,6 +11,8 @@
 #include <queue>
 #include <bitset>
 #include <vector>
+#include <list>
+#include <stack>
 using namespace std;
 
 // Tools
