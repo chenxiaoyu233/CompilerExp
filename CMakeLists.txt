@@ -12,14 +12,14 @@ include_directories ("${CMAKE_HOME_DIRECTORY}/tools/RegExp/src")
 link_directories ("${CMAKE_HOME_DIRECTORY}/tools/RegExp/src")
 
 # Lexical Analyzer module
-add_subdirectory ("${CMAKE_HOME_DIRECTORY}/Lex")
-include_directories ("${CMAKE_HOME_DIRECTORY}/Lex")
-link_directories ("${CMAKE_HOME_DIRECTORY}/Lex")
+add_subdirectory ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex")
+include_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex")
+link_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex")
 
 # Parser module
-add_subdirectory ("${CMAKE_HOME_DIRECTORY}/Parser/src")
-include_directories ("${CMAKE_HOME_DIRECTORY}/Parser/src")
-link_directories ("${CMAKE_HOME_DIRECTORY}/Parser/src")
+add_subdirectory ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Parser/src")
+include_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Parser/src")
+link_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Parser/src")
 
 # options
 option(TestLex "compile to test Lexical Analyzer" OFF)
@@ -35,18 +35,18 @@ endif (NDEBUG)
 
 # TestLex
 if (TestLex)
-    add_executable (TestLex "${CMAKE_HOME_DIRECTORY}/Lex/test/Main.cpp")
+    add_executable (TestLex "${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex/test/Main.cpp")
     target_link_libraries (TestLex Lex RegExpLib)
-    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/Lex")
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex")
     install (TARGETS TestLex
         RUNTIME DESTINATION Debug)
 endif (TestLex)
 
 # TestParser
 if (TestParser)
-    add_executable (TestParser "${CMAKE_HOME_DIRECTORY}/Parser/src/test/Main.cpp")
+    add_executable (TestParser "${CMAKE_HOME_DIRECTORY}/FrontEnd/Parser/src/test/Main.cpp")
     target_link_libraries (TestParser Parser)
-    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/Parser/src/")
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/FrontEnd/Parser/src/")
     install (TARGETS TestParser
         RUNTIME DESTINATION Debug)
 endif (TestParser)

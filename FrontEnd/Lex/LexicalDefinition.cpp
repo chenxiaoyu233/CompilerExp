@@ -46,7 +46,7 @@ LexicalAnalyzer* LexicalDefinition() {
 			\\$e\\$ \\+ \\[-\\]\\{0, 1\\} \\+ \\[123456789\\] \\+ \\["+digit+"\\]\\{, \\}\
 		\\)\\{0, 1\\}", "FLOAT-CONSTANT", true, constantLevel);
 	lex -> AddLexicalItem("\\$\"\\$ \\+ \\["+alphabet+"\\]\\{, \\} \\+ \\$\"\\$", "STRING-CONSTANT", true, constantLevel);
-	cerr << "\\$\"\\$ \\+ \\["+alphabet+"\\]\\{, \\} \\+ \\$\"\\$" << endl;
+	//cerr << "\\$\"\\$ \\+ \\["+alphabet+"\\]\\{, \\} \\+ \\$\"\\$" << endl;
 	lex -> AddLexicalItem("\\$\'\\$ \\+ \\["+alphabet+"\\] \\+ \\$\'\\$", "CHAR-CONSTANT", true, constantLevel);
 	lex -> AddLexicalItem("\\$NULL\\$", "POINTER-CONSTANT", true, constantLevel);
 
