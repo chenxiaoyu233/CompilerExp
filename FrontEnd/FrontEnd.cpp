@@ -10,6 +10,8 @@ void HumanGrammer::AddProduction(string s) {
         if (tail == "|") {
             P.push_back(HumanGrammer{lhs, rhs});
             rhs.clear();
+        } else if (tail == "\\|") {
+            rhs.push_back("|");
         } else {
             rhs.push_back(tail);
         }
