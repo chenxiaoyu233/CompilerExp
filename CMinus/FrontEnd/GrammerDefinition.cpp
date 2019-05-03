@@ -42,4 +42,5 @@ HumanGrammer GrammerDefinition() {
     P("call -> ID ( args )");
     P("args -> arg-list | ");
     P("arg-list -> arg-list , expression | expression");
+    return hg;
 }
