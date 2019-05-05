@@ -3,8 +3,7 @@
 extern vector<MCodeBase*> semantic;
 
 HumanGrammer GrammerDefinition() {
-    HumanGrammer hg;
-    P("S -> program -|");
+    HumanGrammer hg(1, "program");
     P("program -> declaration-list");
     P("declaration-list -> declaration-list declaration | declaration");
     P("declaration -> var-declaration | fun-declaration");
@@ -13,14 +12,14 @@ HumanGrammer GrammerDefinition() {
     P("var-decl-id -> ID | ID [ NUM ]");
     P("type-specifier -> int | void | bool");
     P("fun-declaration -> type-specifier ID ( params ) statement");
-    P("params -> param-list | ");
+    P("params -> param-list |");
     P("param-list -> param-list ; param-type-list | param-type-list");
     P("param-type-list -> type-specifier param-id-list");
     P("param-id-list -> param-id-list , param-id | param-id");
     P("param-id -> ID | ID [ ]");
     P("compound-stmt -> { local-declarations statement-list }");
-    P("local-declarations -> local-declarations var-declaration | ");
-    P("statement-list -> statement-list statement | ");
+    P("local-declarations -> local-declarations var-declaration |");
+    P("statement-list -> statement-list statement |");
     P("statement -> expression-stmt | compound-stmt | selection-stmt | iteration-stmt | return-stmt | break-stmt");
     P("expression-stmt -> expression ; | ;");
     P("selection-stmt -> if ( expression ) statement | if ( expression ) statement else statement");
@@ -42,8 +41,16 @@ HumanGrammer GrammerDefinition() {
     P("factor -> ( expression ) | var | call | constant");
     P("constant -> NUM | true | false");
     P("call -> ID ( args )");
-    P("args -> arg-list | ");
+    P("args -> arg-list |");
     P("arg-list -> arg-list , expression | expression");
+
+    /* Debug */
+    for (auto p: hg.P) {
+        cerr << p.lhs << " -> ";
+        for (auto s: p.rhs) cerr << s << " ";
+        cerr << endl;
+    }
+
     hg.BuildcE();
     return hg;
 }

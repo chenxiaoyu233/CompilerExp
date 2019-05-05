@@ -143,7 +143,7 @@ namespace LR {
         StateSet S0; 
         S0.insert(State{0, -1, characterPow(BUTTOM, k)});
         SS.push(S0);
-        size_t pt = -1; // pointer to Character in s
+        int pt = -1; // pointer to Character in s
         while (pt + k < s.size()) {
             // STEP 1
             StateSet Sp; 
@@ -181,7 +181,7 @@ namespace LR {
             }
             // STEP3
             if (!isMatch) {
-                fprintf(stderr, "Wrong Syntax at position: %zu\n", pt);
+                fprintf(stderr, "Wrong Syntax at position: %d\n", pt);
                 return NULL;
             }
             extendStateSet(G, Sp, SS.top(), k);

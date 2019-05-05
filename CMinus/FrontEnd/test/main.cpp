@@ -57,6 +57,12 @@ LR::Grammer g;
 void buildGrammer() {
     hg = GrammerDefinition();
     g = HG2G(hg, s2i, i2s);
+    /* Debug */
+    for (auto p: g.P) {
+        cerr << p.lhs << " -> ";
+        for (auto s: p.rhs) cerr << s << " ";
+        cerr << endl;
+    }
 }
 
 LR::String sentence;
@@ -72,12 +78,21 @@ void convertSentence() {
     } puts("");
 }
 
+string handleSpecialCharacter(string s) {
+    string ret;
+    for (auto c: s) {
+        if (c == '{' || c == '}' || c == '<' || c == '>' || c == '|' || c == '(' || c == ')') ret += '\\';
+        ret += c;
+    }
+    return ret;
+}
+
 LR::ParseTree* tree;
 vector<string> logContent;
 void makeParseTree() {
     tree = Parse(g, sentence, 1);
     logContent.clear();
-    for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i) logContent.push_back(i2s[i]);
+    for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i) logContent.push_back(handleSpecialCharacter(i2s[i]));
     /* print the parse tree */
     LR::ParseTreeLog(tree, logContent);
 }

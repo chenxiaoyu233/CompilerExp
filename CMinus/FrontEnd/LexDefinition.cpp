@@ -25,6 +25,7 @@ LexicalAnalyzer* LexDefinition() {
 	lex -> AddLexicalItem("\\$if\\$", "if", true, keywordLevel);
 	lex -> AddLexicalItem("\\$else\\$", "else", true, keywordLevel);
 	lex -> AddLexicalItem("\\$while\\$", "while", true, keywordLevel);
+	lex -> AddLexicalItem("\\$return\\$", "return", true, keywordLevel);
     /* operator */
 	lex -> AddLexicalItem("\\$+\\$", "+", true);
 	lex -> AddLexicalItem("\\$-\\$", "-", true);
