@@ -48,7 +48,7 @@ namespace LR {
     ParseTree* Parse(Grammer G, String s, int k);
 
     /* Debug Logger */
-    void ParseTreeLog(ParseTree *rt, char **content);
+    void ParseTreeLog(ParseTree *rt, vector<string> &content);
 }
 
 #endif

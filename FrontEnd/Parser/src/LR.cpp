@@ -132,8 +132,7 @@ namespace LR {
         return ret;
     }
     // Debug
-    void ParseTreeLog(ParseTree *rt, char **content);
-    char **content;
+    void ParseTreeLog(ParseTree *rt, vector<string> &content);
 
     // here, the G and s are both adjusted
     ParseTree* Parse(Grammer G, String s, int k) {
@@ -202,11 +201,11 @@ namespace LR {
         return NULL;
     } 
 
-    int parseTreeLog(ParseTree *rt, int &cnt, char **content = NULL) {
+    int parseTreeLog(ParseTree *rt, int &cnt, vector<string> &content) {
         int now = ++cnt;
-        if (content == NULL)
+        if (content.empty())
             printf("%d [label = \"{<0> %d | {", cnt, rt -> X);
-        else printf("%d [label = \"{<0> %s | {", cnt, content[rt -> X]);
+        else printf("%d [label = \"{<0> %s | {", cnt, content[rt -> X].c_str());
         for (int i = 0; i < rt -> child.size(); ++i) {
             if (i != 0) printf("|");
             printf(" <%d> o ", i+1);
@@ -219,7 +218,7 @@ namespace LR {
         return now;
     }
 
-    void ParseTreeLog(ParseTree *rt, char **content = NULL) {
+    void ParseTreeLog(ParseTree *rt, vector<string> &content) {
         int cnt = 0;
         printf("digraph{ \n");
         printf("node [shape=record] \n");
