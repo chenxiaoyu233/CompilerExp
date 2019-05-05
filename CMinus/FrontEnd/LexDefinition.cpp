@@ -1,3 +1,4 @@
+#include "LexDefinition.hpp"
 
 LexicalAnalyzer* LexDefinition() {
     /* set the aux charactor sets */
@@ -8,7 +9,7 @@ LexicalAnalyzer* LexDefinition() {
     for (int i = 0; i < 10; i++) digit += '0' + i;
 
     /* Lexical Definition */
-    size_t keywordLevel = 10 constantLevel = 2, symbolLevel = 1;
+    size_t keywordLevel = 10, constantLevel = 2, symbolLevel = 1;
     LexicalAnalyzer *lex = new LexicalAnalyzer();
     lex -> AddLexicalItem("\\[ \t\n\\]\\{1, \\}", "white space", false);
     /* Identifier */

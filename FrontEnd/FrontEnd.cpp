@@ -8,7 +8,7 @@ void HumanGrammer::AddProduction(string s) {
     while(!ss.eof()) {
         string tail; ss >> tail;
         if (tail == "|") {
-            P.push_back(HumanGrammer{lhs, rhs});
+            P.push_back(HumanProduction{lhs, rhs});
             rhs.clear();
         } else if (tail == "\\|") {
             rhs.push_back("|");
@@ -17,7 +17,7 @@ void HumanGrammer::AddProduction(string s) {
         }
     }
     /* push back the last production */
-    P.push_back(HumanGrammer{lhs, rhs});
+    P.push_back(HumanProduction{lhs, rhs});
 }
 
 /* build cE using a brute force search */
@@ -39,6 +39,7 @@ void HumanGrammer::BuildcE() {
 void indexSymbols(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) {
     /* Initialize */
     s2i.clear(); i2s.clear(); int cnt = 0;
+    s2i["-|"] = -1;
     /* index */
     for (auto s: hg.I) s2i[s] = ++cnt;
     for (auto s: hg.T) s2i[s] = ++cnt;

@@ -1,8 +1,10 @@
-/* simplify the writting */
-#define P(s) hg.AddProduction(s)
+#include "GrammerDefinition.hpp"
+
+extern vector<MCodeBase*> semantic;
 
 HumanGrammer GrammerDefinition() {
     HumanGrammer hg;
+    P("S -> program -|");
     P("program -> declaration-list");
     P("declaration-list -> declaration-list declaration | declaration");
     P("declaration -> var-declaration | fun-declaration");
@@ -42,5 +44,6 @@ HumanGrammer GrammerDefinition() {
     P("call -> ID ( args )");
     P("args -> arg-list | ");
     P("arg-list -> arg-list , expression | expression");
+    hg.BuildcE();
     return hg;
 }

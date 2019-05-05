@@ -25,4 +25,8 @@ struct HumanGrammer {
     void BuildcE();
 };
 
+
+/* Convert a HumanGrammer hg to a Grammer which is recognized by the parser */
+LR::Grammer HG2G(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s); 
+
 #endif

@@ -3,6 +3,7 @@
 
 // STL LIB
 #include <iostream>
+#include <sstream>
 #include <cstring>
 #include <cstdio>
 #include <string>
