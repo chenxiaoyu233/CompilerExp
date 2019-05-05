@@ -17,9 +17,10 @@ namespace LR {
     };
     typedef set<String, StrCmp> FollowSet;
     struct ParseTree { 
+        int pid; // production id
         Character X; vector<ParseTree*> child; 
-        ParseTree(Character X):X(X) { child.clear(); }
-        ParseTree(Character X, vector<ParseTree*> child):X(X), child(child) { }
+        ParseTree(Character X):X(X) { child.clear(); pid = -1;}
+        ParseTree(int pid, Character X, vector<ParseTree*> child): pid(pid), X(X), child(child) { }
     };
     struct State { 
         int id, pos; String follow; 

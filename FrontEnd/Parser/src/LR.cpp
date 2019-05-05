@@ -170,7 +170,7 @@ namespace LR {
                         CS.pop(); SS.pop(); TS.pop();
                     }
                     reverse(tmpPtr.begin(), tmpPtr.end());
-                    TS.push(new ParseTree(G.P[i].lhs, tmpPtr));
+                    TS.push(new ParseTree(i, G.P[i].lhs, tmpPtr));
                     // Debug
                     /*
                        ParseTree* tmpTree = TS.top();
