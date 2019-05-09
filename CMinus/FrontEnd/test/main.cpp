@@ -101,7 +101,7 @@ void makeParseTree() {
     for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i) 
         logContent.push_back(handleSpecialCharacter(i2s[i]));
     /* print the parse tree */
-    //LR::ParseTreeLog(tree, logContent);
+    LR::ParseTreeLog(tree, logContent);
 }
 
 int main(int argc, char **argv) {
