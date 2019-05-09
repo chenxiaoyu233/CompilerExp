@@ -2,6 +2,8 @@
 #include "GrammerDefinition.hpp"
 #include "LexDefinition.hpp"
 
+string stop_at;
+
 string context;
 char *buffer;
 
@@ -44,10 +46,24 @@ void lex() {
     LexicalAnalyzer* lex = LexDefinition();
     LexicalAnalyzer::LexicalErrorInfo errInfo = lex -> LexicalAnalyze(context);
     if (errInfo.errorType == LexicalAnalyzer::LexicalErrorInfo::LexicalErrorType::MisMatch) {
-        fprintf(stderr, "there is something wrong\n");
+        fprintf(stderr, "there is something wrong at pos %zu\n", errInfo.position);
+        ErrorReport(context).ReportAtPointInLine(errInfo.position);
         exit(233);
     }
     lexResult = lex -> Result();
+    if (stop_at == "lex") {
+        /* return the result from the lex stage, and halt */
+        /*symbol table to fool some fool*/
+        map<string, int> ST; 
+        int addr_cnt = 0;
+        for (auto item: lexResult) ST[item.content] = ++addr_cnt;
+        printf("%10s %10s %10s %10s %10s\n", "content", "sym-type", "begin", "end", "addr");
+        printf("%10s %10s %10s %10s %10s\n", "-------", "--------", "-----", "---", "----");
+        for (auto item: lexResult) {
+            printf("%10s %10s %10zu %10zu %10d\n", item.content.c_str(), item.symbolType.c_str(), item.begin, item.end, ST[item.content]);
+        }
+        exit(0);
+    }
 }
 
 map<string, int> s2i;
@@ -57,12 +73,6 @@ LR::Grammer g;
 void buildGrammer() {
     hg = GrammerDefinition();
     g = HG2G(hg, s2i, i2s);
-    /* Debug */
-    for (auto p: g.P) {
-        cerr << p.lhs << " -> ";
-        for (auto s: p.rhs) cerr << s << " ";
-        cerr << endl;
-    }
 }
 
 LR::String sentence;
@@ -72,16 +82,12 @@ void convertSentence() {
         sentence.push_back(s2i[item.symbolType]);
     }
     sentence.push_back(s2i["-|"]);
-    /* Debug */
-    for (auto e: sentence) {
-        printf("%d ", e);
-    } puts("");
 }
 
 string handleSpecialCharacter(string s) {
     string ret;
     for (auto c: s) {
-        if (c == '{' || c == '}' || c == '<' || c == '>' || c == '|' || c == '(' || c == ')') ret += '\\';
+        if (c == '{' || c == '}' || c == '<' || c == '>' || c == '|' || c == '(' || c == ')' || c == '[' || c == ']') ret += '\\';
         ret += c;
     }
     return ret;
@@ -92,12 +98,14 @@ vector<string> logContent;
 void makeParseTree() {
     tree = Parse(g, sentence, 1);
     logContent.clear();
-    for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i) logContent.push_back(handleSpecialCharacter(i2s[i]));
+    for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i) 
+        logContent.push_back(handleSpecialCharacter(i2s[i]));
     /* print the parse tree */
-    LR::ParseTreeLog(tree, logContent);
+    //LR::ParseTreeLog(tree, logContent);
 }
 
-int main() {
+int main(int argc, char **argv) {
+    if (argc > 1) stop_at = string(argv[1]);
     input();
     lex();
     buildGrammer();

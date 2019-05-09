@@ -5,26 +5,27 @@ void HumanGrammer::AddProduction(string s) {
     string lhs, arrow;
     ss >> lhs >> arrow;
     vector<string> rhs; rhs.clear();
-    set<string> total;
     while(!ss.eof()) {
         string tail; ss >> tail;
+        if (tail == "") continue;
         if (tail == "|") {
             P.push_back(HumanProduction{lhs, rhs});
-            if (!I.count(lhs)) I.insert(lhs);
             rhs.clear();
         } else if (tail == "\\|") {
             rhs.push_back("|");
-            if (!total.count("|")) total.insert("|");
         } else {
             rhs.push_back(tail);
-            if (!total.count(tail)) total.insert(tail);
         }
     }
     /* push back the last production */
     P.push_back(HumanProduction{lhs, rhs});
-    if (!I.count(lhs)) I.insert(lhs);
-    /* calc the set T */
-    for (auto s: total) if (!I.count(s) && !T.count(s)) T.insert(s);
+}
+
+/* build the set T and set I*/
+void HumanGrammer::BuildIT() {
+    I.clear(); T.clear();
+    for (auto pd: P) if (!I.count(pd.lhs)) I.insert(pd.lhs);
+    for (auto pd: P) for (auto s: pd.rhs) if (!I.count(s) && !T.count(s)) T.insert(s);
 }
 
 /* build cE using a brute force search */
@@ -61,10 +62,10 @@ HumanGrammer::HumanGrammer(int k, string start) {
 void indexSymbols(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) {
     /* Initialize */
     s2i.clear(); i2s.clear(); 
-    int cnt = 1; // leave 0 for S, S must be 0
+    int cnt = 0; // leave 0 for S, S must be 0
     s2i["S"] = 0; s2i["-|"] = -1;
     /* index */
-    for (auto s: hg.I) if(s.size() != 0) s2i[s] = ++cnt;
+    for (auto s: hg.I) if(s.size() != 0 && s != "S") s2i[s] = ++cnt;
     for (auto s: hg.T) if(s.size() != 0) s2i[s] = ++cnt;
     /* create inverse */
     for (auto p: s2i) i2s[p.second] = p.first;

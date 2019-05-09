@@ -7,6 +7,8 @@
 #include "LexicalAnalyzer.hpp"
 /* Parse */
 #include "LR.hpp"
+/* ErrorReport */
+#include "ErrorReport.hpp"
 
 
 /* This is used for representing productions in a human readable way */
@@ -26,6 +28,7 @@ struct HumanGrammer {
     /* e.i. "A -> AB | B | e" (here the 'e' means empty string) */
     void AddProduction(string s);
     void BuildcE();
+    void BuildIT();
 };
 
 

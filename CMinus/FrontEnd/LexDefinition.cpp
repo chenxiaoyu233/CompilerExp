@@ -18,10 +18,12 @@ LexicalAnalyzer* LexDefinition() {
     lex -> AddLexicalItem("\\["+digit+"\\]\\{1, \\}", "NUM", true, constantLevel);
     lex -> AddLexicalItem("\\$true\\$", "true", true, constantLevel);
     lex -> AddLexicalItem("\\$false\\$", "false", true, constantLevel);
+    lex -> AddLexicalItem("\\$\"\\$ \\+ \\["+letter+digit+" \t\n\\]\\{, \\} \\+ \\$\"\\$", "string", constantLevel);
     /* keyword */ 
 	lex -> AddLexicalItem("\\$void\\$", "void", true, keywordLevel);
 	lex -> AddLexicalItem("\\$int\\$", "int", true, keywordLevel);
 	lex -> AddLexicalItem("\\$bool\\$", "bool", true, keywordLevel);
+	lex -> AddLexicalItem("\\$string\\$", "bool", true, keywordLevel);
 	lex -> AddLexicalItem("\\$if\\$", "if", true, keywordLevel);
 	lex -> AddLexicalItem("\\$else\\$", "else", true, keywordLevel);
 	lex -> AddLexicalItem("\\$while\\$", "while", true, keywordLevel);
@@ -53,6 +55,5 @@ LexicalAnalyzer* LexDefinition() {
 	lex -> AddLexicalItem("\\$}\\$", "}", true);
 	lex -> AddLexicalItem("\\$,\\$", ",", true);
 	lex -> AddLexicalItem("\\$;\\$", ";", true);
-
     return lex;
 }

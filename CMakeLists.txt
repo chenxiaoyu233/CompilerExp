@@ -11,6 +11,11 @@ add_subdirectory ("${CMAKE_HOME_DIRECTORY}/tools/RegExp/src")
 include_directories ("${CMAKE_HOME_DIRECTORY}/tools/RegExp/src")
 link_directories ("${CMAKE_HOME_DIRECTORY}/tools/RegExp/src")
 
+# ErrorReport module
+add_subdirectory ("${CMAKE_HOME_DIRECTORY}/FrontEnd/ErrorReport")
+include_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/ErrorReport")
+link_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/ErrorReport")
+
 # Lexical Analyzer module
 add_subdirectory ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex")
 include_directories ("${CMAKE_HOME_DIRECTORY}/FrontEnd/Lex")
