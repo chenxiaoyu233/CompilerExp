@@ -14,6 +14,7 @@
 #include <vector>
 #include <list>
 #include <stack>
+#include <algorithm>
 using namespace std;
 
 // Tools
