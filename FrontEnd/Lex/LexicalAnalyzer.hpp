@@ -54,6 +54,7 @@ public:
 	// get the result for lexical analysis.
 	// @return vector<LexicalItemInfo>: return the lexical items in a vector.
 	vector<LexicalAnalyzer::LexicalItemInfo> Result();
+    void LogDfa();
 };
 
 #endif

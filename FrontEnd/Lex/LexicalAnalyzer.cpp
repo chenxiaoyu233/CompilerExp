@@ -86,3 +86,7 @@ LexicalAnalyzer::LexicalErrorInfo LexicalAnalyzer::LexicalAnalyze(string context
 vector<LexicalAnalyzer::LexicalItemInfo> LexicalAnalyzer::Result() {
 	return itemList;
 }
+
+void LexicalAnalyzer::LogDfa() {
+    dfa.Log();
+}
