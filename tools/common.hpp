@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <queue>
 #include <bitset>
