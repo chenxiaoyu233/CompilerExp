@@ -185,7 +185,7 @@ HumanGrammer GrammerDefinition() {
     PE("statement -> selection-stmt", ret -> include(child[0]););
     PE("statement -> iteration-stmt", ret -> include(child[0]););
     PE("statement -> return-stmt", ret -> include(child[0]););
-    PE("statement -> break-stmt", ret -> include(child[0]););
+    //PE("statement -> break-stmt", ret -> include(child[0]););
     PE("expression-stmt -> expression ;", ret -> include(child[0]););
     PE("expression-stmt -> ;", /* do nothing here */);
     PE("selection-stmt -> if ( expression ) statement",
@@ -206,9 +206,24 @@ HumanGrammer GrammerDefinition() {
         ret -> include(child[6]);
         ret -> include(MCodeTuple("label", L2.name, "", ""));
     );
-    P("iteration-stmt -> while ( expression ) statement");
-    P("return-stmt -> return ; | return expression ;");
-    P("break-stmt -> break ;");
+    PE("iteration-stmt -> while ( expression ) statement",
+        MCodeSymbol L1 = newLabel();
+        MCodeSymbol L2 = newLabel();
+        ret -> include(MCodeTuple("label", L1.name, "", ""));
+        ret -> include(child[2]);
+        ret -> include(MCodeTuple("ifz", (child[2] -> code).back().arg[0], "goto", L2.name));
+        ret -> include(child[4]);
+        ret -> include(MCodeTuple("goto", L1.name, "", ""));
+        ret -> include(MCodeTuple("label", L2.name, "", ""));
+    );
+    PE("return-stmt -> return ;",
+        ret -> include(MCodeTuple("return", "", "", ""));
+    );
+    PE("return-stmt -> return expression ;",
+        ret -> child[1];
+        ret -> include(MCodeTuple("return", (child[1] -> code).back().arg[0], "", ""));
+    );
+    //P("break-stmt -> break ;");
     PE("expression -> var = expression",
         ret -> include(child[2]);
         ret -> include(MCodeTuple("=", ch(0), (child[2] -> code).back().arg[0], ""));
@@ -234,7 +249,10 @@ HumanGrammer GrammerDefinition() {
             exit(233);
         }
         /* genreate the code */
-        ret -> include(MCodeTuple("", "", ch(0), 0));
+        //ret -> include(MCodeTuple("", "", ch(0), 0));
+        MCodeSymbol tmp = newVar("int", 0);
+        ret -> include(MCodeTuple("declare", "int", tmp.name, "0"));
+        ret -> include(MCodeTuple("=", tmp.name, ch(0), ""));
     );
     PE("var -> ID [ expression ]",
         /* check if the symbol exists */
@@ -248,8 +266,10 @@ HumanGrammer GrammerDefinition() {
             exit(233);
         }
         /* generate the code */
+        MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[2]);
-        ret -> include(MCodeTuple("", ch(0) + "[" + (child[2] -> code).back().arg[0] + "]", "", ""));
+        ret -> include(MCodeTuple("declare", "int", tmp.name, "0"));
+        ret -> include(MCodeTuple("=", tmp.name, ch(0) + "[" + (child[2] -> code).back().arg[0] + "]", ""));
     );
     PE("simple-expression -> simple-expression \\| or-expression",
         MCodeSymbol tmp = newVar("int", 0);
@@ -288,19 +308,57 @@ HumanGrammer GrammerDefinition() {
     PE("relop -> >=", ret -> include(MCodeTuple("", ">=", "", "")););
     PE("relop -> ==", ret -> include(MCodeTuple("", "==", "", "")););
     PE("relop -> !=", ret -> include(MCodeTuple("", "!=", "", "")););
-    P("add-expression -> add-expression addop term | term");
+    PE("add-expression -> add-expression addop term",
+        MCodeSymbol tmp = newVar("int", 0);
+        ret -> include(child[0]);
+        ret -> include(child[2]);
+        ret -> include(MCodeTuple("declare", "int", tmp.name, "0"));
+        ret -> include(MCodeTuple(ch(1), tmp.name, (child[0] -> code).back().arg[0], (child[2] -> code).back().arg[0]));
+    );
+    PE("add-expression -> term", ret -> include(child[0]););
     PE("addop -> +", ret -> include(MCodeTuple("", "+", "", "")););
     PE("addop -> -", ret -> include(MCodeTuple("", "-", "", "")););
-    P("term -> term mulop unary-expression | unary-expression");
+    PE("term -> term mulop unary-expression",
+        MCodeSymbol tmp = newVar("int", 0);
+        ret -> include(child[0]);
+        ret -> include(child[2]);
+        ret -> include(MCodeTuple("declare", "int", tmp.name, "0"));
+        ret -> include(MCodeTuple(ch(1), tmp.name, (child[0] -> code).back().arg[0], (child[2] -> code).back().arg[0]));
+    );
+    PE("term -> unary-expression", ret -> include(child[0]););
     PE("mulop -> *", ret -> include(MCodeTuple("", "*", "", "")););
     PE("mulop -> /", ret -> include(MCodeTuple("", "/", "", "")););
     PE("mulop -> %", ret -> include(MCodeTuple("", "%", "", "")););
-    P("unary-expression -> - unary-expression | factor");
-    P("factor -> ( expression ) | var | call | constant");
-    P("constant -> NUM | true | false");
-    P("call -> ID ( args )");
-    P("args -> arg-list |");
-    P("arg-list -> arg-list , expression | expression");
+    PE("unary-expression -> - unary-expression",
+        MCodeSymbol tmp = newVar("int", 0);
+        ret -> include(child[1]);
+        ret -> include(MCodeTuple("declare", "int", tmp.name, "0"));
+        ret -> include(MCodeTuple("-", tmp.name, (child[1] -> code).back().arg[0], ""));
+    );
+    PE("unary-expression -> factor", ret -> include(child[0]););
+    PE("factor -> ( expression )", ret -> include(child[0]););
+    PE("factor -> var", ret -> include(child[0]););
+    PE("factor -> call", ret -> include(child[0]););
+    PE("factor -> constant", ret -> include(child[0]););
+    PE("constant -> NUM", ret -> include(child[0]););
+    PE("constant -> true", ret -> include(child[0]););
+    PE("constant -> false", ret -> include(child[0]););
+    PE("call -> ID ( args )",
+        ret -> include(child[2]);
+        MCodeSymbol tmp = newVar("int", 0);
+        ret -> include(MCodeTuple("declare", "int", tmp.name, "0"));
+        ret -> include(MCodeTuple("=", tmp.name, "call", ch(0)));
+    );
+    PE("args -> arg-list", ret -> include(child[0]););
+    PE("args ->", /* do nothing here */);
+    PE("arg-list -> arg-list , expression",
+        ret -> include(child[1]);
+        ret -> include(MCodeTuple("formal", ch(0) + ", " + (child[0] -> code).back().arg[0], "", ""));
+    );
+    PE("arg-list -> expression",
+        ret -> include(child[0]);
+        ret -> include(MCodeTuple("formal", (child[0] -> code).back().arg[0], "", ""));
+    );
 
     hg.BuildIT();
     hg.BuildcE();
