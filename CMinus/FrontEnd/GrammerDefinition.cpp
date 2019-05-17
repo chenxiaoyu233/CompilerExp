@@ -65,6 +65,9 @@ MCodeSymbol newVar(string type, int len) {
 
 HumanGrammer GrammerDefinition() {
     HumanGrammer hg(1, "program");
+    /* hold place for Production S */
+    semantic.push_back(new MCodeBase());
+    
     PE("program -> declaration-list", ret -> include(child[0]););
     PE("declaration-list -> declaration-list declaration",
         ret -> include(child[0]);
@@ -171,6 +174,7 @@ HumanGrammer GrammerDefinition() {
         openScope();
     );
     PE("local-declarations -> local-declarations var-declaration",
+        fprintf(stderr, "234\n");
         ret -> include(child[0]);
         ret -> include(child[1]);
     );
