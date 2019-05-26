@@ -43,6 +43,7 @@ struct MCodeBase {
     list<MCodeTuple> code;
     map<string, void*> info; // aux information;
     MCodeBase() { code.clear(); child.clear(); begin = end = -1; info.clear(); }
+    virtual ~MCodeBase() {}
     void include(MCodeBase *other) { for (auto item: other -> code) code.push_back(item); }
     void include(MCodeTuple ln) { code.push_back(ln); }
     string ch(int i, int j = 0) { return (child[i] -> code).back()[j]; } // child code
