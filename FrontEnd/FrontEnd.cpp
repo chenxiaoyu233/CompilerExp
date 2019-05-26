@@ -59,7 +59,7 @@ HumanGrammer::HumanGrammer(int k, string start) {
     P.push_back(HumanProduction{"S", rhs});
 }
 
-void indexSymbols(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) {
+void FrontEnd::indexSymbols(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) {
     /* Initialize */
     s2i.clear(); i2s.clear(); 
     int cnt = 0; // leave 0 for S, S must be 0
@@ -72,8 +72,25 @@ void indexSymbols(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s)
     /* Debug */
 }
 
+FrontEnd::FrontEnd(string context):context(context) {
+    s2i.clear(); i2s.clear();
+    tree = NULL;
+    lex = NULL;
+}
+
+FrontEnd::~FrontEnd() {
+    if (lex != NULL) delete lex;
+    if (tree != NULL) deleteTree(tree);
+}
+
+void FrontEnd::deleteTree(LR::ParseTree *rt) {
+    for (auto son: rt -> child) deleteTree(son);
+    delete rt;
+}
+
+
 /* Convert a HumanGrammer hg to a Grammer which is recognized by the parser */
-LR::Grammer HG2G(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) {
+LR::Grammer FrontEnd::HG2G(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) {
     /* Initialize */
     LR::Grammer g;
     g.P.clear(); g.I.clear(); g.cE.clear();
@@ -96,3 +113,116 @@ LR::Grammer HG2G(HumanGrammer hg, map<string, int> &s2i, map<int, string> &i2s) 
     return g;
 }
 
+void FrontEnd::LexDefinition() {
+    lex = new LexicalAnalyzer();
+    this -> lexDefinition();
+}
+
+void FrontEnd:: LexProcess() {
+    LexicalAnalyzer::LexicalErrorInfo errInfo = lex -> LexicalAnalyze(context);
+    if (errInfo.errorType == LexicalAnalyzer::LexicalErrorInfo::LexicalErrorType::NoError) {
+        lexResult = lex -> Result();
+    } else {
+        this -> lexErrorHandler(errInfo);
+        exit(0);
+    }
+}
+
+void FrontEnd::GrammerDefinition() {
+    /* hold place for Production S */
+    semantic.push_back(new MCodeBase());
+    this -> grammerDefinition();
+    hg.BuildIT();
+    hg.BuildcE();
+    g = HG2G(hg, s2i, i2s);
+}
+
+MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt) {
+    if ((rt -> child).empty()) {
+        /* we reach a leaf*/
+        MCodeBase *cur = new MCodeBase();
+        if (rt -> pid == -1) {
+            /* think carefully on empty string */
+            (cur -> code).push_back({lexResult[cnt].content});
+            /* maintain the range of this node */
+            cur -> begin = lexResult[cnt].begin;
+            cur -> end = lexResult[cnt].end;
+            /* add the counter for the next leaf */
+            ++ cnt;
+        }
+        return cur;
+    }
+    
+    MCodeBase* ret = new MCodeBase();
+    
+    /* enumerate on childs */
+    vector<MCodeBase*> vec; vec.clear();
+    for (auto ch: rt -> child) {
+        MCodeBase* cur = SemanticAnalysis(ch, cnt);
+        if (ret -> begin == -1) ret -> begin = cur -> begin;
+        if (cur -> end != -1) ret -> end = cur -> end;
+        vec.push_back(cur);
+    }
+    
+    assert(vec.size() == rt -> child.size());
+    
+    /* generate the MCode for this node */
+    semantic[rt -> pid] -> child.clear();
+    for (auto ch: vec)
+        semantic[rt -> pid] -> child.push_back(ch);
+    
+    /* generate MCode */
+    semantic[rt -> pid] -> generate(ret);
+    
+    /* freechlid node */
+    for (auto p: vec) delete p;
+    
+    return ret;
+}
+
+void FrontEnd::GrammerProcess() {
+    // convert the lexReslut to a sentence that could be read by LR algorithm
+    sentence.clear();
+    for (auto item: lexResult) {
+        sentence.push_back(s2i[item.symbolType]);
+    }
+    sentence.push_back(s2i["-|"]);
+    
+    // generate the parse tree
+    tree = Parse(g, sentence, 1);
+    
+    // generate the content for logger
+    logContent.clear();
+    for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i)
+        logContent.push_back(handleSpecialCharacter(i2s[i]));
+}
+
+string FrontEnd::handleSpecialCharacter(string s) {
+    string ret;
+    for (auto c: s) {
+        if (c == '{' || c == '}' || c == '<' || c == '>' || c == '|' || c == '(' || c == ')' || c == '[' || c == ']') ret += '\\';
+        ret += c;
+    }
+    return ret;
+}
+
+void FrontEnd::LogParseTree() {
+    /* print the parse tree */
+    LR::ParseTreeLog(tree, logContent);
+}
+
+void FrontEnd::LogDFA() {
+    lex -> LogDfa();
+}
+
+MCodeBase* FrontEnd::EndToEnd(int k, string start) {
+    hg = HumanGrammer(k, start);
+    LexDefinition();
+    LexProcess();
+    if(!AfterLex()) return NULL;
+    GrammerDefinition();
+    GrammerProcess();
+    if(!AfterGrammer()) return NULL;
+    int cnt = 0;
+    return SemanticAnalysis(tree, cnt);
+}

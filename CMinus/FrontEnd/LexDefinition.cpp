@@ -1,6 +1,6 @@
-#include "LexDefinition.hpp"
 
-LexicalAnalyzer* LexDefinition() {
+
+void FrontEndImplement::lexDefinition() {
     /* set the aux charactor sets */
     string letter;
     for (int i = 0; i < 26; i++) letter += 'a' + i;
@@ -10,7 +10,6 @@ LexicalAnalyzer* LexDefinition() {
 
     /* Lexical Definition */
     size_t keywordLevel = 10, constantLevel = 2, symbolLevel = 1;
-    LexicalAnalyzer *lex = new LexicalAnalyzer();
     lex -> AddLexicalItem("\\[ \t\n\\]\\{1, \\}", "white space", false);
     /* Identifier */
     lex -> AddLexicalItem("\\["+letter+"\\]\\{1, \\} \\+ \\["+digit+"\\]\\{, \\}", "ID", true, symbolLevel);
@@ -55,5 +54,4 @@ LexicalAnalyzer* LexDefinition() {
 	lex -> AddLexicalItem("\\$}\\$", "}", true);
 	lex -> AddLexicalItem("\\$,\\$", ",", true);
 	lex -> AddLexicalItem("\\$;\\$", ";", true);
-    return lex;
 }
