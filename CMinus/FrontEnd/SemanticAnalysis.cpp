@@ -6,22 +6,39 @@ MCodeBase* SemanticAnalysis(LR::ParseTree *rt, vector<MCodeBase*> &semantic, vec
         MCodeBase *cur = new MCodeBase();
         if (rt -> pid == -1) {
             /* think carefully on empty string */
-            (cur -> code).push_back(MCodeTuple("", lexResult[cnt].content, "", ""));
+            (cur -> code).push_back({lexResult[cnt].content});
+            /* maintain the range of this node */
+            cur -> begin = lexResult[cnt].begin;
+            cur -> end = lexResult[cnt].end;
             /* add the counter for the next leaf */
             ++ cnt;
         }
         return cur;
     }
    
+    MCodeBase* ret = new MCodeBase();
+
     /* enumerate on childs */
     vector<MCodeBase*> vec; vec.clear();
     for (auto ch: rt -> child) {
-        vec.push_back(SemanticAnalysis(ch, semantic, lexResult, cnt));
+        MCodeBase* cur = SemanticAnalysis(ch, semantic, lexResult, cnt);
+        if (ret -> begin == -1) ret -> begin = cur -> begin;
+        if (cur -> end != -1) ret -> end = cur -> end;
+        vec.push_back(cur);
     }
+    
+    assert(vec.size() == rt -> child.size());
     
     /* generate the MCode for this node */
     semantic[rt -> pid] -> child.clear();
     for (auto ch: vec)
         semantic[rt -> pid] -> child.push_back(ch);
-    return semantic[rt -> pid] -> generate();
+
+    /* generate MCode */
+    semantic[rt -> pid] -> generate(ret);
+
+    /* freechlid node */
+    for (auto p: vec) delete p;
+
+    return ret;
 }

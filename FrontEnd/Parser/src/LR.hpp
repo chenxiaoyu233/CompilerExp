@@ -19,7 +19,7 @@ namespace LR {
     struct ParseTree { 
         int pid; // production id
         Character X; vector<ParseTree*> child; 
-        ParseTree(Character X):X(X) { child.clear(); pid = -1;}
+        ParseTree(Character X):X(X) { child.clear(); pid = -1;} // pid == -1 表示叶子节点
         ParseTree(int pid, Character X, vector<ParseTree*> child): pid(pid), X(X), child(child) { }
     };
     struct State { 

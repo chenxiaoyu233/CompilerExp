@@ -1,6 +1,7 @@
 #include "FrontEnd.hpp"
 #include "GrammerDefinition.hpp"
 #include "LexDefinition.hpp"
+#include "SemanticAnalysis.hpp"
 
 string stop_at;
 
@@ -116,6 +117,16 @@ void makeParseTree() {
     LR::ParseTreeLog(tree, logContent);
 }
 
+void semanticAnalysis() {
+    int cnt = 0;
+    MCodeBase* ret = SemanticAnalysis(tree, semantic, lexResult, cnt);
+    for (auto tp: ret -> code) {
+        for (auto s: tp) {
+            printf("%s ", s.c_str());
+        } printf("\n");
+    }
+}
+
 int main(int argc, char **argv) {
     if (argc > 1) stop_at = string(argv[1]);
     input();
@@ -123,5 +134,6 @@ int main(int argc, char **argv) {
     buildGrammer();
     convertSentence();
     makeParseTree();
+    semanticAnalysis();
     return 0;
 }

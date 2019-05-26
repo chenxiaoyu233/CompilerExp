@@ -31,22 +31,20 @@ MCodeSymbol newVar(string type, int len);
 
 
 /* use this to store a single MCode sentence */
-struct MCodeTuple {
-    string op;
-    string arg[3];
-    MCodeTuple(string op, string result, string arg1, string arg2):
-        op(op) { arg[0] = result; arg[1] = arg1; arg[2] = arg2; }
-};
+typedef vector<string> MCodeTuple;
 
 /* use this class to generate mid level code */
 struct MCodeBase {
+    int begin, end; // [, )
     vector<MCodeBase*> child;
     list<MCodeTuple> code;
-    MCodeBase() { code.clear(); child.clear(); }
+    map<string, void*> info; // aux information;
+    MCodeBase() { code.clear(); child.clear(); begin = end = -1; info.clear(); }
     void include(MCodeBase *other) { for (auto item: other -> code) code.push_back(item); }
     void include(MCodeTuple ln) { code.push_back(ln); }
-    string ch(int i, int j = 0) { return (child[i] -> code).front().arg[j]; }
-    virtual MCodeBase* generate() { return NULL; }
+    string ch(int i, int j = 0) { return (child[i] -> code).back()[j]; } // child code
+    void* au(int i, string label) { return (child[i] -> info)[label]; } // aux info
+    virtual void generate(MCodeBase* ret) { }
 };
 
 /* used for storing the semantic action */
@@ -64,10 +62,8 @@ extern vector<MCodeBase*> semantic;
 /* use this to bind a semantic action to a production */
 #define E(...) do {\
     struct MCodeBaseSub : public MCodeBase {\
-        virtual MCodeBase* generate() {\
-            MCodeBase* ret = new MCodeBase();\
+        virtual void generate(MCodeBase *ret) {\
             __VA_ARGS__\
-            return ret;\
         }\
     };\
     semantic.push_back(new MCodeBaseSub());\
