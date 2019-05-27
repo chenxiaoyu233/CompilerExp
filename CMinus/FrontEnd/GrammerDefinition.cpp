@@ -319,19 +319,23 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("call -> ID ( args )",
         ret -> include(child[2]);
-        ret -> include((MCodeBase*)(au(2, "actual")));
-        delete (MCodeBase*)(au(2, "actual"));
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include({"var", tmp.name});
+        ret -> include((MCodeBase*)(au(2, "actual")));
+        delete (MCodeBase*)(au(2, "actual"));
         ret -> include({tmp.name, "=", "call", ch(0)});
     );
-    PE("args -> arg-list", ret -> include(child[0]););
+    PE("args -> arg-list",
+       ret -> include(child[0]);
+       (ret -> info)["actual"] = au(0, "actual");
+    );
     PE("args ->", /* do nothing here */);
     PE("arg-list -> arg-list , expression",
+        ret -> include(child[0]);
         ret -> include(child[2]);
         (ret -> info)["actual"] = au(0, "actual");
         MCodeBase* cur = (MCodeBase*)(au(0, "actual"));
-        cur -> include({"actual", ch(0)});
+        cur -> include({"actual", ch(2)});
     );
     PE("arg-list -> expression",
         ret -> include(child[0]);
