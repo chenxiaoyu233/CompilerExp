@@ -45,6 +45,6 @@ int main(int argc, char **argv) {
     FrontEndImplement parser(context);
     MCodeBase* ret = parser.EndToEnd(1, "program");
     if (ret != NULL) ret -> output(stderr);
-    parser.LogParseTree();
+    //parser.LogParseTree();
     return 0;
 }

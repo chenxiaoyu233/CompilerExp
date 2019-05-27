@@ -293,7 +293,7 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include({tmp.name, "=", "-", ch(1)});
     );
     PE("unary-expression -> factor", ret -> include(child[0]););
-    PE("factor -> ( expression )", ret -> include(child[0]););
+    PE("factor -> ( expression )", ret -> include(child[1]););
     PE("factor -> var",
         ret -> include(child[0]);
         MCodeSymbol tmp = newVar("int", 0);
