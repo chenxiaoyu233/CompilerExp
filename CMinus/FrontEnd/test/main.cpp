@@ -42,6 +42,9 @@ void input() {
 int main(int argc, char **argv) {
     if (argc > 1) stop_at = string(argv[1]);
     input();
-    FrontEndImplement(context).EndToEnd(1, "program") -> output(stderr);
+    FrontEndImplement parser(context);
+    MCodeBase* ret = parser.EndToEnd(1, "program");
+    if (ret != NULL) ret -> output(stderr);
+    parser.LogParseTree();
     return 0;
 }

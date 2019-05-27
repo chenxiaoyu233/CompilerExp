@@ -207,8 +207,12 @@ string FrontEnd::handleSpecialCharacter(string s) {
 }
 
 void FrontEnd::LogParseTree() {
+    /* generate debug content for lex content */
+    vector<string> lexContent; lexContent.clear();
+    for (auto item: lexResult)
+        lexContent.push_back(handleSpecialCharacter(item.content));
     /* print the parse tree */
-    LR::ParseTreeLog(tree, logContent);
+    LR::ParseTreeLog(tree, logContent, &lexContent);
 }
 
 void FrontEnd::LogDFA() {

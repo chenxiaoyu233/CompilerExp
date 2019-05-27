@@ -201,28 +201,34 @@ namespace LR {
         return NULL;
     } 
 
-    int parseTreeLog(ParseTree *rt, int &cnt, vector<string> &content) {
+    int parseTreeLog(ParseTree *rt, int &cnt, vector<string> &content, vector<string> *lexResult, int &leafCnt) {
         int now = ++cnt;
         if (content.empty())
             printf("%d [label = \"{<0> %d | {", cnt, rt -> X);
         else printf("%d [label = \"{<0> %s | {", cnt, content[rt -> X].c_str());
-        for (int i = 0; i < rt -> child.size(); ++i) {
+        if (rt -> child.empty()) {
+            if (rt -> pid == -1) {
+                if (lexResult != NULL) printf(" <1> %s ", (*lexResult)[leafCnt].c_str());
+                ++ leafCnt;
+            }
+        } else for (int i = 0; i < rt -> child.size(); ++i) {
             if (i != 0) printf("|");
             printf(" <%d> o ", i+1);
         }
         printf("}}\"]\n");
 
         for (int i = 0; i < rt -> child.size(); ++i) {
-            printf("%d:%d -> %d:0\n", now, i+1, parseTreeLog(rt -> child[i], cnt, content));
+            printf("%d:%d -> %d:0\n", now, i+1, parseTreeLog(rt -> child[i], cnt, content, lexResult, leafCnt));
         }
         return now;
     }
 
-    void ParseTreeLog(ParseTree *rt, vector<string> &content) {
+    void ParseTreeLog(ParseTree *rt, vector<string> &content, vector<string> *lexResult = NULL) {
         int cnt = 0;
+        int leafCnt = 0;
         printf("digraph{ \n");
         printf("node [shape=record] \n");
-        parseTreeLog(rt, cnt, content);
+        parseTreeLog(rt, cnt, content, lexResult, leafCnt);
         printf("}\n");
     }
 
