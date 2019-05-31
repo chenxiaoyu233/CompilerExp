@@ -55,6 +55,14 @@ struct MCodeBase {
             fputs("\n", out);
         }
     }
+    string toString() {
+        string ret = "";
+        for (auto &tp: code) {
+            for (auto s: tp) ret += s + " ";
+            ret += "\n";
+        }
+        return ret;
+    }
 };
 
 // A End to End translator

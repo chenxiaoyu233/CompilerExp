@@ -113,8 +113,10 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include({ch(0), "1"});
     );
     PE("compound-stmt -> local-scope-start local-declarations statement-list }",
+        ret -> include({"#begin"});
         ret -> include(child[1]);
         ret -> include(child[2]);
+        ret -> include({"#end"});
         /* close the scope */
         closeScope();
     );

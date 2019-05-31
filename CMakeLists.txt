@@ -36,9 +36,15 @@ add_subdirectory ("${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd")
 include_directories ("${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd")
 link_directories ("${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd")
 
+# CMinus BackEnd
+add_subdirectory ("${CMAKE_HOME_DIRECTORY}/CMinus/BackEnd")
+include_directories ("${CMAKE_HOME_DIRECTORY}/CMinus/BackEnd")
+link_directories ("${CMAKE_HOME_DIRECTORY}/CMinus/BackEnd")
+
 # options
 option(TestLex "compile to test Lexical Analyzer" OFF)
 option(TestParser "compile to test Parser" OFF)
+option(TestCMinusFront "compile to test CMinus FrontEnd" OFF)
 option(TestCMinus "compile to test CMinus" OFF)
 option(NDEBUG "turn off debug" OFF)
 
@@ -67,11 +73,20 @@ if (TestParser)
         RUNTIME DESTINATION Debug)
 endif (TestParser)
 
+# TestCMinusFront
+if (TestCMinusFront)
+    add_executable (TestCMinusFront "${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd/test/main.cpp")
+    target_link_libraries (TestCMinusFront CMinusFrontEndDef FrontEnd)
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd/test/")
+    install (TARGETS TestCMinusFront
+        RUNTIME DESTINATION Debug)
+endif (TestCMinusFront)
+
 # TestCMinus
 if (TestCMinus)
-    add_executable (TestCMinus "${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd/test/main.cpp")
-    target_link_libraries (TestCMinus CMinusFrontEndDef FrontEnd)
-    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/CMinus/FrontEnd/test/")
+    add_executable (TestCMinus "${CMAKE_HOME_DIRECTORY}/CMinus/test/main.cpp")
+    target_link_libraries (TestCMinus CMinusFrontEndDef CMinusBackEndDef FrontEnd)
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_HOME_DIRECTORY}/CMinus/test/")
     install (TARGETS TestCMinus
         RUNTIME DESTINATION Debug)
 endif (TestCMinus)
