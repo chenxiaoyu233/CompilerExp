@@ -8,6 +8,7 @@ namespace BackEnd{
         virtual void lexDefinition();
         virtual void lexErrorHandler(LexicalAnalyzer::LexicalErrorInfo errInfo);
         virtual void grammerDefinition();
+        virtual bool AfterLex();
 
     public:
          BackEndImplement(string context):FrontEnd(context) {}

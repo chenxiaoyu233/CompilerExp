@@ -186,10 +186,14 @@ void FrontEnd::GrammerProcess() {
     for (auto item: lexResult) {
         sentence.push_back(s2i[item.symbolType]);
     }
-    sentence.push_back(s2i["-|"]);
+    for (int i = 0; i < k; ++i) sentence.push_back(s2i["-|"]);
     
     // generate the parse tree
-    tree = Parse(g, sentence, 1);
+    int errorAt = -233;
+    tree = Parse(g, sentence, k, errorAt);
+    if (errorAt != -233) { /* error happens */
+        ErrorReport(context).ReportAtPointInLine(lexResult[errorAt].begin);
+    }
     
     // generate the content for logger
     logContent.clear();
@@ -220,6 +224,7 @@ void FrontEnd::LogDFA() {
 }
 
 MCodeBase* FrontEnd::EndToEnd(int k, string start) {
+    this -> k = k;
     hg = HumanGrammer(k, start);
     LexDefinition();
     LexProcess();

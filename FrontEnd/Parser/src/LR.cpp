@@ -135,7 +135,7 @@ namespace LR {
     void ParseTreeLog(ParseTree *rt, vector<string> &content);
 
     // here, the G and s are both adjusted
-    ParseTree* Parse(Grammer G, String s, int k) {
+    ParseTree* Parse(Grammer G, String s, int k, int &errorAt) {
         stack<Character>  CS; // Character Stack
         stack<StateSet>   SS; // State Set Stack
         stack<ParseTree*> TS; // Parse Root Stack
@@ -151,7 +151,11 @@ namespace LR {
             // STEP 2
             calcZ(G, Sp, Z, k);
             calcZp(G, Sp, Zp);
-            if (isConflict(G, Z, Zp)) return NULL;
+            if (isConflict(G, Z, Zp)) {
+                fprintf(stderr, "LR: Grammer conflict at position: %d\n", pt);
+                errorAt = pt;
+                return NULL;
+            }
             bool isMatch = false;
             String sbs = subString(s, pt+1, pt+k);
             if (Z.count(sbs)) {
@@ -181,7 +185,8 @@ namespace LR {
             }
             // STEP3
             if (!isMatch) {
-                fprintf(stderr, "Wrong Syntax at position: %d\n", pt);
+                fprintf(stderr, "LR: Wrong Syntax at position: %d\n", pt);
+                errorAt = pt;
                 return NULL;
             }
             extendStateSet(G, Sp, SS.top(), k);

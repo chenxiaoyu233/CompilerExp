@@ -1,7 +1,8 @@
 #include "DescribeTable.hpp"
 
 void BackEndImplement::grammerDefinition() {
-    PE("program -> statement-list", ret -> include(child[0]););
+    PE("program -> statement-declare", ret -> include(child[0]););
+    PE("statement-declare -> statement-list", ret -> include(child[0]););
     PE("statement-list -> statement-list statement",
         ret -> include(child[0]);
         ret -> include(child[1]);
@@ -9,17 +10,21 @@ void BackEndImplement::grammerDefinition() {
     PE("statement-list -> statement", ret -> include(child[0]););
     PE("statement -> simple-statement", ret -> include(child[0]););
     PE("statement -> scope-statement", ret -> include(child[0]););
-    PE("scope-statement -> scope-head formal-declare statement-list end",
+    PE("scope-statement -> scope-head statement-list end",
+        ret -> include(child[0]);
         ret -> include(child[1]);
-        ret -> include(child[2]);
         closeScope();
     );
-    PE("scope-head -> begin",
+    PE("scope-head -> begin formal-declare",
         startScope();
+        addVar("ret-data-addr");
+        ret -> include({"LOD R2, R2+4"});
+        ret -> include(child[1]);
+        addVar("ret-ip-addr");
+        ret -> include({"LOD R2, R2+4"});
     );
     PE("formal-declare -> formal-list",
         int size = (child[0] -> code).size();
-        addVar("ret-data-addr");
         for (auto item: child[0] -> code) {
             if (isDuplicate(item[0])) {
                 fprintf(stderr, "duplicate\n");
@@ -27,15 +32,23 @@ void BackEndImplement::grammerDefinition() {
             }
             addVar(item[0]);
         }
-        addVar("ret-ip-addr");
-        ret -> include({"LOD R2, R2+" + to_string((2+size)*4)});
+        ret -> include({"LOD R2, R2+" + to_string(size*4)});
     );
+    PE("formal-declare ->", /* do nothing here */);
     PE("formal-list -> formal-list formal-line",
         ret -> include(child[0]);
         ret -> include(child[1]);
     );
-    PE("formal-list ->", /* do nothing here */);
+    PE("formal-list -> formal-line", ret -> include(child[0]););
     PE("formal-line -> formal ID", ret -> include(child[1]););
+    PE("simple-statement -> var ID NUM",
+        if (isDuplicate(ch(1))) {
+            fprintf(stderr, "duplicate\n");
+            exit(233);
+        }
+        addVar(ch(1));
+        ret -> include({"LOD R2, R2+4"});
+    );
     PE("simple-statement -> var ID",
         if (isDuplicate(ch(1))) {
             fprintf(stderr, "duplicate\n");
@@ -89,7 +102,7 @@ void BackEndImplement::grammerDefinition() {
         ret -> include({"JMP R3"});
     );
     PE("simple-statement -> function-call", ret -> include(child[0]););
-    PE("function-call -> actual-list ID = call ID",
+    PE("function-call -> actual-param call ID = ID",
         /* set the return value */
         int base = BP;
         BP += 4;
@@ -108,14 +121,16 @@ void BackEndImplement::grammerDefinition() {
         ret -> include({"LOD R2, R2-" + to_string(BP-base)}); BP = base;
         ret -> include({"JMP " + ch(4)});
         ret -> include({"LOD R4, " + to_string(BP-base+4)});
-        ret -> include({"STO " + memVar(ch(1)) + ", R4"});
+        ret -> include({"STO " + memVar(ch(2)) + ", R4"});
         ret -> include({"LOD R2, R2-" + to_string(BP-base)}); BP = base;
     );
+    PE("actual-param -> actual-list", ret -> include(child[0]););
+    PE("actual-param ->", /* do nothing here */);
     PE("actual-list -> actual-list actual-line",
         ret -> include(child[0]);
         ret -> include(child[1]);
     );
-    PE("actual-list ->", /* do nothing here */);
+    PE("actual-list -> actual-line", ret -> include(child[0]););
     PE("actual-line -> actual ID", ret -> include(child[1]););
     PE("op -> +", ret -> include({"ADD"}););
     PE("op -> -", ret -> include({"SUB"}););

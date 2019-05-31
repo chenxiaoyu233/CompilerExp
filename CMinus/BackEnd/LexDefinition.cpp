@@ -13,8 +13,8 @@ void BackEndImplement::lexDefinition() {
     lex -> AddLexicalItem("\\[ \t\n\\]\\{1, \\}", "white space", false);
     /* Identifier */
     lex -> AddLexicalItem(
-        "\\(\\["+letter+"\\]\\{1, \\} \\+ \\["+digit+"\\]\\{, \\}\\) \\| "
-        "\\( \\$<\\$ \\["+letter+"\\]\\{1, \\} \\+ \\["+digit+"\\]\\{, \\} \\$>\\$ \\)", 
+        "\\( \\["+letter+"\\]\\{1, \\} \\+ \\["+digit+"\\]\\{, \\} \\) \\| "
+        "\\( \\$<\\$ \\+ \\["+letter+"\\]\\{1, \\} \\+ \\["+digit+"\\]\\{, \\} \\+ \\$>\\$ \\)", 
     "ID", true, symbolLevel);
     /* constant */
     lex -> AddLexicalItem("\\["+digit+"\\]\\{1, \\}", "NUM", true, constantLevel);
@@ -25,7 +25,7 @@ void BackEndImplement::lexDefinition() {
 	lex -> AddLexicalItem("\\$formal\\$", "formal", true, keywordLevel);
 	lex -> AddLexicalItem("\\$actual\\$", "actual", true, keywordLevel);
 	lex -> AddLexicalItem("\\$begin\\$ \\| \\$#begin\\$", "begin", true, keywordLevel);
-	lex -> AddLexicalItem("\\$end\\$ \\| \\$#begin\\$", "end", true, keywordLevel);
+	lex -> AddLexicalItem("\\$end\\$ \\| \\$#end\\$", "end", true, keywordLevel);
 	lex -> AddLexicalItem("\\$call\\$", "call", true, keywordLevel);
 	lex -> AddLexicalItem("\\$return\\$", "return", true, keywordLevel);
 	lex -> AddLexicalItem("\\$if\\$", "if", true, keywordLevel);

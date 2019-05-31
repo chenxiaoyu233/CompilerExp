@@ -45,7 +45,7 @@ namespace LR {
     const Character BUTTOM = -1;
 
     /* Main Functions */
-    ParseTree* Parse(Grammer G, String s, int k);
+    ParseTree* Parse(Grammer G, String s, int k, int &errorAt);
 
     /* Debug Logger */
     void ParseTreeLog(ParseTree *rt, vector<string> &content, vector<string> *lexResult);

@@ -325,7 +325,7 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include({"var", tmp.name});
         ret -> include((MCodeBase*)(au(2, "actual")));
         delete (MCodeBase*)(au(2, "actual"));
-        ret -> include({tmp.name, "=", "call", ch(0)});
+        ret -> include({"call", tmp.name, "=", ch(0)});
     );
     PE("args -> arg-list",
        ret -> include(child[0]);

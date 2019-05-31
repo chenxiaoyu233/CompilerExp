@@ -79,6 +79,7 @@ protected:
     vector<LexicalAnalyzer::LexicalItemInfo> lexResult;
     vector<MCodeBase*> semantic;
     LexicalAnalyzer *lex;
+    int k;
 
     FrontEnd(string context);
     ~FrontEnd();
