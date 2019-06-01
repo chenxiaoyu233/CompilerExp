@@ -134,11 +134,27 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include(child[1]);
     );
     PE("statement-list ->", /* do nothing here */);
-    PE("statement -> expression-stmt", ret -> include(child[0]););
-    PE("statement -> compound-stmt", ret -> include(child[0]););
-    PE("statement -> selection-stmt", ret -> include(child[0]););
-    PE("statement -> iteration-stmt", ret -> include(child[0]););
-    PE("statement -> return-stmt", ret -> include(child[0]););
+    PE("statement -> expression-stmt",
+        ret -> include({"#begin"});
+        ret -> include(child[0]);
+        ret -> include({"#end"});
+    );
+    PE("statement -> compound-stmt",ret -> include(child[0]););
+    PE("statement -> selection-stmt",
+        ret -> include({"#begin"});
+        ret -> include(child[0]);
+        ret -> include({"#end"});
+    );
+    PE("statement -> iteration-stmt",
+        ret -> include({"#begin"});
+        ret -> include(child[0]);
+        ret -> include({"#end"});
+    );
+    PE("statement -> return-stmt",
+        ret -> include({"#begin"});
+        ret -> include(child[0]);
+        ret -> include({"#end"});
+    );
     //PE("statement -> break-stmt", ret -> include(child[0]););
     PE("expression-stmt -> expression ;", ret -> include(child[0]););
     PE("expression-stmt -> ;", /* do nothing here */);
