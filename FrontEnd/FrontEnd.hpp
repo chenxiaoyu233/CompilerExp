@@ -48,7 +48,7 @@ struct MCodeBase {
     void include(MCodeTuple ln) { code.push_back(ln); }
     string ch(int i, int j = 0) { return (child[i] -> code).back()[j]; } // child code
     void* au(int i, string label) { return (child[i] -> info)[label]; } // aux info
-    virtual void generate(MCodeBase* ret) { }
+    virtual void generate(MCodeBase* ret, string &context) { }
     void output(FILE *out) {
         for (auto &tp: code) {
             for (auto s: tp) fprintf(out, "%s ", s.c_str());
@@ -101,6 +101,8 @@ protected:
     virtual void lexErrorHandler(LexicalAnalyzer::LexicalErrorInfo errInfo) = 0;
     /* define your grammer and their semantic operations here */
     virtual void grammerDefinition() = 0;
+    /* handle your grammer errors here */
+    virtual bool grammerErrorHandler(int errorAt);
     
     /* states for translation */
     // Lex State
@@ -109,7 +111,7 @@ protected:
     virtual bool AfterLex() {return true;}
     // Grammer Stage
     void GrammerDefinition();
-    void GrammerProcess();
+    bool GrammerProcess();
     virtual bool AfterGrammer() {return true;}
     // Semantic Stage
     MCodeBase* SemanticAnalysis(LR::ParseTree *rt, int &cnt);
@@ -143,7 +145,7 @@ public:
 /* use this to bind a semantic action to a production */
 #define E(...) do {\
     struct MCodeBaseSub : public MCodeBase {\
-        virtual void generate(MCodeBase *ret) {\
+        virtual void generate(MCodeBase *ret, string &context) {\
             __VA_ARGS__\
         }\
     };\

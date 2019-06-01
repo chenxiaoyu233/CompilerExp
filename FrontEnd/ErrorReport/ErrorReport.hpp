@@ -7,7 +7,11 @@ class ErrorReport {
 public:
     string context;
     ErrorReport(string context);
-    void ReportAtPointInLine(size_t pos, size_t endpos = -1);
+    void Report(string type, string content, size_t pos, size_t endpos = -1);
+    string Red(string content);
+    string Green(string content);
+    string Yellow(string content);
+    string ColorSelector(string type, string content);
 };
 
 #endif

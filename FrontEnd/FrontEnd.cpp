@@ -172,7 +172,7 @@ MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt) {
         semantic[rt -> pid] -> child.push_back(ch);
     
     /* generate MCode */
-    semantic[rt -> pid] -> generate(ret);
+    semantic[rt -> pid] -> generate(ret, context);
     
     /* freechlid node */
     for (auto p: vec) delete p;
@@ -180,7 +180,8 @@ MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt) {
     return ret;
 }
 
-void FrontEnd::GrammerProcess() {
+bool FrontEnd::GrammerProcess() {
+    bool flag = true;
     // convert the lexReslut to a sentence that could be read by LR algorithm
     sentence.clear();
     for (auto item: lexResult) {
@@ -192,13 +193,24 @@ void FrontEnd::GrammerProcess() {
     int errorAt = -233;
     tree = Parse(g, sentence, k, errorAt);
     if (errorAt != -233) { /* error happens */
-        ErrorReport(context).ReportAtPointInLine(lexResult[errorAt].begin, lexResult[errorAt].end);
+        flag &= this -> grammerErrorHandler(errorAt);
     }
     
     // generate the content for logger
     logContent.clear();
     for (int i = 0, lim = hg.I.size() + hg.T.size(); i < lim; ++i)
         logContent.push_back(handleSpecialCharacter(i2s[i]));
+    
+    return flag;
+}
+
+bool FrontEnd::grammerErrorHandler(int errorAt) {
+    ErrorReport(context).Report(
+        "error", "Syntax Error",
+        lexResult[errorAt].begin, lexResult[errorAt].end
+    );
+    exit(233);
+    return false;
 }
 
 string FrontEnd::handleSpecialCharacter(string s) {
@@ -230,7 +242,7 @@ MCodeBase* FrontEnd::EndToEnd(int k, string start) {
     LexProcess();
     if(!AfterLex()) return NULL;
     GrammerDefinition();
-    GrammerProcess();
+    if(!GrammerProcess()) return NULL;
     if(!AfterGrammer()) return NULL;
     int cnt = 0;
     return SemanticAnalysis(tree, cnt);

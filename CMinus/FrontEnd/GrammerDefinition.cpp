@@ -20,6 +20,10 @@ void FrontEndImplement::grammerDefinition() {
             tp = {ch(0), tp[0], tp[1], tp[2]}; 
             if (ch(0) == "void") {
                 fprintf(stderr, "you can not use a void to define a variable\n");
+                ErrorReport(context).Report(
+                    "error", "you can not use a void to define a variable",
+                    child[0] -> begin, child[0] -> end
+                );
                 exit(233);
             }
         }
