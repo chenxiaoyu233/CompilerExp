@@ -163,12 +163,19 @@ void FrontEndImplement::grammerDefinition() {
     PE("iteration-stmt -> while ( expression ) statement",
         MCodeSymbol L1 = newLabel();
         MCodeSymbol L2 = newLabel();
+        MCodeSymbol v1 = newVar("int", 0);
+        ret -> include({"#begin"});
+        ret -> include({"var", v1.name});
         ret -> include({"label", L1.name});
+        ret -> include({"#begin"});
         ret -> include(child[2]);
-        ret -> include({"ifz", ch(2), "goto", L2.name});
+        ret -> include({v1.name, "=", ch(2)});
+        ret -> include({"#end"});
+        ret -> include({"ifz", v1.name, "goto", L2.name});
         ret -> include(child[4]);
         ret -> include({"goto", L1.name});
         ret -> include({"label", L2.name});
+        ret -> include({"#end"});
     );
     PE("return-stmt -> return ;",
         ret -> include({"return"});

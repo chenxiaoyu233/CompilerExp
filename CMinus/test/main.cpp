@@ -78,10 +78,16 @@ int main(int argc, char **argv) {
     FrontEndImplement Front(context);
     MCodeBase* ret = Front.EndToEnd(1, "program");
     if (ret == NULL) return 0;
-    //ret -> output(stderr);
+    if (stop_at == "mcode") {
+        ret -> output(stderr);
+        //fprintf(stderr, "\n\n");
+        return 0;
+    }
+    if (stop_at == "mtree") {
+        Front.LogParseTree();
+        return 0;
+    }
     mcode = ret -> toString();
-    //fprintf(stderr, "\n\n");
-    //Front.LogParseTree();
     BackEnd::BackEndImplement Back(mcode);
     ret = Back.EndToEnd(1, "program");
     //Back.LogParseTree();

@@ -2,6 +2,7 @@
 
 void BackEndImplement::grammerDefinition() {
     PE("program -> statement-declare", ret -> include(child[0]););
+    PE("statement-declare ->", /* do nothing here */);
     PE("statement-declare -> statement-list", ret -> include(child[0]););
     PE("statement-list -> statement-list statement",
         ret -> include(child[0]);
@@ -11,11 +12,13 @@ void BackEndImplement::grammerDefinition() {
     PE("statement -> simple-statement", ret -> include(child[0]););
     PE("statement -> scope-statement", ret -> include(child[0]););
     PE("statement -> function-statement", ret -> include(child[0]););
-    PE("function-statement -> function-head statement-list end",
+    PE("function-statement -> function-head statement-declare end",
         ret -> include(child[0]);
         ret -> include(child[1]);
-        ret -> include({"LOD R2, R2-" + to_string(BP-LDT.front().front().addr+8)});
-        BP = LDT.front().front().addr - 8;
+        if (!LDT.front().empty()) { /* has applied new var */
+            ret -> include({"LOD R2, R2-" + to_string(BP-LDT.front().front().addr+8)});
+            BP = LDT.front().front().addr - 8;
+        }
         ret -> include({"# end function"});
         ret -> include({""});
         closeScope();
@@ -34,11 +37,13 @@ void BackEndImplement::grammerDefinition() {
         addVar("ret-data-addr");
         ret -> include({"LOD R2, R2+8"});
     );
-    PE("scope-statement -> scope-head statement-list #end",
+    PE("scope-statement -> scope-head statement-declare #end",
         ret -> include(child[0]);
         ret -> include(child[1]);
-        ret -> include({"LOD R2, R2-" + to_string(BP-LDT.front().front().addr+8)});
-        BP = LDT.front().front().addr - 8;
+        if (!LDT.front().empty()) { /* has applied new var */
+            ret -> include({"LOD R2, R2-" + to_string(BP-LDT.front().front().addr+8)});
+            BP = LDT.front().front().addr - 8;
+        }
         ret -> include({"# close scope"});
         ret -> include({""});
         closeScope();
