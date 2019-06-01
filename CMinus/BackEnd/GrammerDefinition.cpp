@@ -79,9 +79,11 @@ void BackEndImplement::grammerDefinition() {
         addVar(ch(1));
         if (!LDT.empty()) {
             ret -> include({"LOD R2, R2+8"});
+            ret -> include({"LOD R4,", ch(3)});
+            ret -> include({"STO " + memVar(ch(1)) + ", R4"});
+        } else {
+            GDT.back().initval = ch(3);
         }
-        ret -> include({"LOD R4,", ch(3)});
-        ret -> include({"STO " + memVar(ch(1)) + ", R4"});
         ret -> include({""});
     );
     PE("simple-statement -> var ID",

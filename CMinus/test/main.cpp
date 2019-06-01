@@ -46,16 +46,23 @@ MCodeBase* entry;
 namespace BackEnd {
 #include "DescribeTable.hpp"
     MCodeBase* CompleteIt(MCodeBase* ori) {
-        entry = BackEndImplement("var <ret> 0 0\ncall <ret> = main\n")
-                .EndToEnd(1, "program");
         MCodeBase* ret = new MCodeBase();
         ret -> include({"# init BP (R2)"});
         ret -> include({"LOD R2, STACK"});
         ret -> include({""});
         ret -> include({"# init global vars"});
+        int cnt = 0;
+        for (auto item: GDT) {
+            //fprintf(stderr, "%s\n", item.name.c_str());
+            ++cnt;
+            ret -> include({"LOD R4,", item.initval});
+            ret -> include({"STO (R2+" + to_string(8 * cnt) + "), R4"});
+        }
         ret -> include({"LOD R2, R2+" + to_string(8 * GDT.size())});
         ret -> include({""});
         ret -> include({"# add entry"});
+        ret -> include(entry); delete entry;
+        entry = BackEndImplement("call <ret> = main\n").EndToEnd(1, "program");
         ret -> include(entry); delete entry;
         ret -> include({"# show return value"});
         ret -> include({"LOD R15, " + memVar("<ret>")});
@@ -89,6 +96,7 @@ int main(int argc, char **argv) {
     }
     mcode = ret -> toString();
     BackEnd::BackEndImplement Back(mcode);
+    entry = BackEnd::BackEndImplement("var <ret> 0 0\n").EndToEnd(1, "program");
     ret = Back.EndToEnd(1, "program");
     //Back.LogParseTree();
     if (ret == NULL) return 0;

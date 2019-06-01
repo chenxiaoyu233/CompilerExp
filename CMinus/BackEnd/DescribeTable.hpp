@@ -5,6 +5,7 @@
 struct DescribeTableItem {
     string name;
     int addr;
+    string initval;
 };
 
 extern int BP;
