@@ -70,8 +70,8 @@ void BackEndImplement::grammerDefinition() {
     );
     PE("formal-list -> formal-line", ret -> include(child[0]););
     PE("formal-line -> formal ID", ret -> include(child[1]););
-    PE("simple-statement -> var ID NUM",
-        ret -> include({"#", ch(0), ch(1), ch(2)});
+    PE("simple-statement -> var ID NUM NUM",
+        ret -> include({"#", ch(0), ch(1), ch(2), ch(3)});
         if (isDuplicate(ch(1))) {
             fprintf(stderr, "duplicate\n");
             exit(233);
@@ -79,8 +79,10 @@ void BackEndImplement::grammerDefinition() {
         addVar(ch(1));
         if (!LDT.empty()) {
             ret -> include({"LOD R2, R2+8"});
-            ret -> include({""});
         }
+        ret -> include({"LOD R4,", ch(3)});
+        ret -> include({"STO " + memVar(ch(1)) + ", R4"});
+        ret -> include({""});
     );
     PE("simple-statement -> var ID",
         ret -> include({"#", ch(0), ch(1)});

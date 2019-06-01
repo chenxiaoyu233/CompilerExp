@@ -46,7 +46,7 @@ MCodeBase* entry;
 namespace BackEnd {
 #include "DescribeTable.hpp"
     MCodeBase* CompleteIt(MCodeBase* ori) {
-        entry = BackEndImplement("var <ret> 0\ncall <ret> = main\n")
+        entry = BackEndImplement("var <ret> 0 0\ncall <ret> = main\n")
                 .EndToEnd(1, "program");
         MCodeBase* ret = new MCodeBase();
         ret -> include({"# init BP (R2)"});

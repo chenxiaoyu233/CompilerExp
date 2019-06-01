@@ -17,7 +17,7 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include(child[1]);
         /* add the type infomation to the type-specifier */
         for (auto &tp: ret -> code) { 
-            tp = {ch(0), tp[0], tp[1]}; 
+            tp = {ch(0), tp[0], tp[1], tp[2]}; 
             if (ch(0) == "void") {
                 fprintf(stderr, "you can not use a void to define a variable\n");
                 exit(233);
@@ -43,7 +43,10 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include(child[0]);
     );
     PE("var-decl-id -> ID",
-        ret -> include({ch(0), "0"});
+        ret -> include({ch(0), "0", "0"});
+    );
+    PE("var-decl-id -> ID = NUM",
+        ret -> include({ch(0), "0", ch(2)});
     );
     PE("var-decl-id -> ID [ NUM ]",
         ret -> include({ch(0), ch(2)});
