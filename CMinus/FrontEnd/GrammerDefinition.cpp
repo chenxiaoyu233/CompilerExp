@@ -23,7 +23,7 @@ void FrontEndImplement::grammerDefinition() {
                     "error", "you can not use \'void\' to define a variable",
                     child[0] -> begin, child[0] -> end
                 );
-                exit(233);
+                ret -> errorCnt += 1;
             }
         }
         /* add the vars defined here to the current scope */
@@ -38,7 +38,7 @@ void FrontEndImplement::grammerDefinition() {
                 "error", "the symbol \'" + tp[1] + "\' is duplicate",
                 ret -> begin, ret -> end
             );
-            exit(233);
+            ret -> errorCnt += 1;
         }
     );
     PE("var-decl-list -> var-decl-list , var-decl-id",
@@ -83,7 +83,7 @@ void FrontEndImplement::grammerDefinition() {
                     "error", "the \'main\' function should not have any parameters",
                     child[1] -> begin, child[1] -> end
                 );
-                exit(233);
+                ret -> errorCnt += 1;
             }
         }
         /* check if function token duplicate */
@@ -92,7 +92,7 @@ void FrontEndImplement::grammerDefinition() {
                 "error", "the function \'" + func_name + "\' is duplicate",
                 child[1] -> begin, child[1] -> end
             );
-            exit(233);
+            ret -> errorCnt += 1;
         }
         /* add the function to symbol table */
         addSymbol(MCodeSymbol{"label", func_name, 0});
@@ -106,7 +106,7 @@ void FrontEndImplement::grammerDefinition() {
                 "error", "the symbol \'" + tp[1] + "\' is duplicate",
                 child[3] -> begin, child[3] -> end
             );
-            exit(233);
+            ret -> errorCnt += 1;
         }
         /* generate the MCode */
         ret -> include({"label", func_name});
@@ -129,7 +129,7 @@ void FrontEndImplement::grammerDefinition() {
                 "error", "you can not use a \'void\' variable",
                 child[0] -> begin, child[0] -> end
             );
-            exit(233);
+            ret -> errorCnt += 1;
         }
         ret -> include({"formal", ch(1, 0), ch(1, 1)});
     );
@@ -273,10 +273,10 @@ void FrontEndImplement::grammerDefinition() {
                 "error", "the symbol \'" + ch(0) + "\' does not exist",
                 ret -> begin, ret -> end
             );
-            exit(233);
+            ret -> errorCnt += 1;
         }
         /* check if the usage of this var is right */
-        if (findSymbol(ch(0)).len > 0) {
+        if (ret -> errorCnt == 0 && findSymbol(ch(0)).len > 0) {
             fprintf(stderr, "the symbol %s is an array, it should be followed by []\n", ch(0).c_str());
             exit(233);
         }
@@ -292,10 +292,10 @@ void FrontEndImplement::grammerDefinition() {
                 "error", "the symbol \'" + ch(0) + "\' does not exist",
                 ret -> begin, ret -> end
             );
-            exit(233);
+            ret -> errorCnt += 1;
         }
         /* check if the useage of this var is right */
-        if (findSymbol(ch(0)).len == 0) {
+        if (ret -> errorCnt == 0 && findSymbol(ch(0)).len == 0) {
             fprintf(stderr, "the symbol %s is not an array, it should not be followed by []\n", ch(0).c_str());
             exit(233);
         }

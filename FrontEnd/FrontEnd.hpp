@@ -38,11 +38,12 @@ typedef vector<string> MCodeTuple;
 
 /* use this class to generate mid level code */
 struct MCodeBase {
+    int errorCnt, warnCnt; // use these counters to report error and warn
     int begin, end; // [, )
     vector<MCodeBase*> child;
     list<MCodeTuple> code;
     map<string, void*> info; // aux information;
-    MCodeBase() { code.clear(); child.clear(); begin = end = -1; info.clear(); }
+    MCodeBase() { code.clear(); child.clear(); begin = end = -1; info.clear(); errorCnt = warnCnt = 0; }
     virtual ~MCodeBase() {}
     void include(MCodeBase *other) { for (auto item: other -> code) code.push_back(item); }
     void include(MCodeTuple ln) { code.push_back(ln); }
@@ -114,7 +115,7 @@ protected:
     bool GrammerProcess();
     virtual bool AfterGrammer() {return true;}
     // Semantic Stage
-    MCodeBase* SemanticAnalysis(LR::ParseTree *rt, int &cnt);
+    MCodeBase* SemanticAnalysis(LR::ParseTree *rt, int &cnt, int &errorCnt, int &warnCnt);
     
 public:
     // End to End translation

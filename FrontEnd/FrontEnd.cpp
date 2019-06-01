@@ -137,7 +137,7 @@ void FrontEnd::GrammerDefinition() {
     g = HG2G(hg, s2i, i2s);
 }
 
-MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt) {
+MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt, int &errorCnt, int &warnCnt) {
     if ((rt -> child).empty()) {
         /* we reach a leaf*/
         MCodeBase *cur = new MCodeBase();
@@ -158,7 +158,7 @@ MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt) {
     /* enumerate on childs */
     vector<MCodeBase*> vec; vec.clear();
     for (auto ch: rt -> child) {
-        MCodeBase* cur = SemanticAnalysis(ch, cnt);
+        MCodeBase* cur = SemanticAnalysis(ch, cnt, errorCnt, warnCnt);
         if (ret -> begin == -1) ret -> begin = cur -> begin;
         if (cur -> end != -1) ret -> end = cur -> end;
         vec.push_back(cur);
@@ -173,6 +173,10 @@ MCodeBase* FrontEnd::SemanticAnalysis(LR::ParseTree *rt, int &cnt) {
     
     /* generate MCode */
     semantic[rt -> pid] -> generate(ret, context);
+    /* collect the error and warn number from this node */
+    errorCnt += ret -> errorCnt;
+    warnCnt += ret -> warnCnt;
+    
     
     /* freechlid node */
     for (auto p: vec) delete p;
@@ -245,5 +249,9 @@ MCodeBase* FrontEnd::EndToEnd(int k, string start) {
     if(!GrammerProcess()) return NULL;
     if(!AfterGrammer()) return NULL;
     int cnt = 0;
-    return SemanticAnalysis(tree, cnt);
+    int errorCnt = 0, warnCnt = 0;;
+    MCodeBase* ret = SemanticAnalysis(tree, cnt, errorCnt, warnCnt);
+    fprintf(stderr, "%d errors generated, %d warnings generated\n", errorCnt, warnCnt);
+    if (errorCnt > 0) return NULL;
+    return ret;
 }
