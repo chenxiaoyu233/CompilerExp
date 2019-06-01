@@ -250,8 +250,8 @@ MCodeBase* FrontEnd::EndToEnd(int k, string start) {
     if(!AfterGrammer()) return NULL;
     int cnt = 0;
     int errorCnt = 0, warnCnt = 0;;
-    MCodeBase* ret = SemanticAnalysis(tree, cnt, errorCnt, warnCnt);    
-    if (errorCnt > 0) {
+    MCodeBase* ret = SemanticAnalysis(tree, cnt, errorCnt, warnCnt);
+    if (errorCnt > 0 || warnCnt > 0) {
         fprintf(stderr, "%d errors generated, %d warnings generated\n", errorCnt, warnCnt);
         return NULL;
     }

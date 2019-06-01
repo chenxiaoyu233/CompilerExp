@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     MCodeBase* ret = Front.EndToEnd(1, "program");
     if (ret == NULL) return 0;
     if (stop_at == "mcode") {
-        ret -> output(stderr);
+        ret -> output(stdout);
         //fprintf(stderr, "\n\n");
         return 0;
     }
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
     //Back.LogParseTree();
     if (ret == NULL) return 0;
     ret = BackEnd::CompleteIt(ret);
-    ret -> output(stderr);
+    ret -> output(stdout);
     //parser.LogParseTree();
     return 0;
 }
