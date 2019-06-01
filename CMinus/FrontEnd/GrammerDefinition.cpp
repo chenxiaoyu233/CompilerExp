@@ -269,9 +269,8 @@ void FrontEndImplement::grammerDefinition() {
     PE("var -> ID",
         /* check if the symbol exists */
         if (!symbolExists(ch(0))) {
-            fprintf(stderr, "var -> ID: the symbol %s does not exist\n", ch(0).c_str());
             ErrorReport(context).Report(
-                "error", "the symbol %s does not exist",
+                "error", "the symbol \'" + ch(0) + "\' does not exist",
                 ret -> begin, ret -> end
             );
             exit(233);
@@ -290,8 +289,8 @@ void FrontEndImplement::grammerDefinition() {
         /* check if the symbol exists */
         if (!symbolExists(ch(0))) {
             ErrorReport(context).Report(
-                "error", "the symbol %s does not exist",
-                child[0] -> begin, child[0] -> end
+                "error", "the symbol \'" + ch(0) + "\' does not exist",
+                ret -> begin, ret -> end
             );
             exit(233);
         }
