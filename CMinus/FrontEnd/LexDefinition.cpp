@@ -26,6 +26,7 @@ void FrontEndImplement::lexDefinition() {
 	lex -> AddLexicalItem("\\$if\\$", "if", true, keywordLevel);
 	lex -> AddLexicalItem("\\$else\\$", "else", true, keywordLevel);
 	lex -> AddLexicalItem("\\$while\\$", "while", true, keywordLevel);
+    lex -> AddLexicalItem("\\$for\\$", "for", true, keywordLevel);
 	lex -> AddLexicalItem("\\$return\\$", "return", true, keywordLevel);
     /* operator */
 	lex -> AddLexicalItem("\\$+\\$", "+", true);
