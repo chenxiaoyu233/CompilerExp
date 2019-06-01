@@ -24,8 +24,10 @@ void BackEndImplement::lexDefinition() {
 	lex -> AddLexicalItem("\\$label\\$", "label", true, keywordLevel);
 	lex -> AddLexicalItem("\\$formal\\$", "formal", true, keywordLevel);
 	lex -> AddLexicalItem("\\$actual\\$", "actual", true, keywordLevel);
-	lex -> AddLexicalItem("\\$begin\\$ \\| \\$#begin\\$", "begin", true, keywordLevel);
-	lex -> AddLexicalItem("\\$end\\$ \\| \\$#end\\$", "end", true, keywordLevel);
+	lex -> AddLexicalItem("\\$begin\\$", "begin", true, keywordLevel);
+    lex -> AddLexicalItem("\\$#begin\\$", "#begin", true, keywordLevel);
+	lex -> AddLexicalItem("\\$end\\$", "end", true, keywordLevel);
+    lex -> AddLexicalItem("\\$#end\\$", "#end", true, keywordLevel);
 	lex -> AddLexicalItem("\\$call\\$", "call", true, keywordLevel);
 	lex -> AddLexicalItem("\\$return\\$", "return", true, keywordLevel);
 	lex -> AddLexicalItem("\\$if\\$", "if", true, keywordLevel);

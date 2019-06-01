@@ -8,8 +8,11 @@ namespace BackEnd {
     void startScope() { LDT.push_front(list<DescribeTableItem>()); }
     void closeScope() { LDT.pop_front(); }
     bool isDuplicate(string name) {
-        if (LDT.empty()) for (auto item: GDT) if(item.name == name) return true;
-        else for (auto item: LDT.front()) if (item.name == name) return true;
+        if (LDT.empty()) {
+            for (auto item: GDT) if(item.name == name) return true;
+        } else {
+            for (auto item: LDT.front()) if (item.name == name) return true;
+        }
         return false;
     }
     bool exists(string name) {
@@ -24,14 +27,14 @@ namespace BackEnd {
     }
 
     void addVar(string name, int addr) {
-        if(addr == -1) { BP += 4; addr = BP; }
+        if(addr == -1) { BP += 8; addr = BP; }
         if(LDT.empty()) GDT.push_back({name, addr});
         else LDT.front().push_back({name, addr});
     }
 
     string memVar(string name) {
         if (!exists(name)) {
-            fprintf(stderr, "var does not exist\n");
+            fprintf(stderr, "var %s does not exist\n", name.c_str());
             exit(233);
         }
         DescribeTableItem v = find(name);

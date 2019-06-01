@@ -8,6 +8,8 @@ struct DescribeTableItem {
 };
 
 extern int BP;
+extern list<DescribeTableItem> GDT;
+extern list<list<DescribeTableItem> > LDT;
 
 void startScope();
 void closeScope();

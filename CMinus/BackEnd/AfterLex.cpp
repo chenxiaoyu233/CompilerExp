@@ -1,5 +1,6 @@
 
 bool BackEndImplement::AfterLex() {
+    return true;
     /* return the result from the lex stage, and halt */
     /*symbol table to*/
     char buffer[10005];
