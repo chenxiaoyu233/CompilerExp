@@ -185,8 +185,8 @@ namespace LR {
             }
             // STEP3
             if (!isMatch) {
-                fprintf(stderr, "LR: Wrong Syntax at position: %d\n", pt);
-                errorAt = pt;
+                fprintf(stderr, "LR: Wrong Syntax at position: %d\n", pt+1);
+                errorAt = pt+1;
                 return NULL;
             }
             extendStateSet(G, Sp, SS.top(), k);

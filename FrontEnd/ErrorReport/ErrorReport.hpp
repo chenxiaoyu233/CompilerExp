@@ -7,7 +7,7 @@ class ErrorReport {
 public:
     string context;
     ErrorReport(string context);
-    void ReportAtPointInLine(size_t pos);
+    void ReportAtPointInLine(size_t pos, size_t endpos = -1);
 };
 
 #endif

@@ -192,7 +192,7 @@ void FrontEnd::GrammerProcess() {
     int errorAt = -233;
     tree = Parse(g, sentence, k, errorAt);
     if (errorAt != -233) { /* error happens */
-        ErrorReport(context).ReportAtPointInLine(lexResult[errorAt].begin);
+        ErrorReport(context).ReportAtPointInLine(lexResult[errorAt].begin, lexResult[errorAt].end);
     }
     
     // generate the content for logger
