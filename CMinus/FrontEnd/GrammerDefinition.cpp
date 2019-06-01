@@ -30,10 +30,6 @@ void FrontEndImplement::grammerDefinition() {
         for (auto &tp: ret -> code) if (!symbolDuplicate(tp[1])) {
             addSymbol(MCodeSymbol{tp[0], tp[1], atoi(tp[2].c_str())});
         } else {
-            /* debug */
-            for (auto s: tp) {
-                fprintf(stderr, "%s ", s.c_str());
-            } fprintf(stderr, "\n");
             ErrorReport(context).Report(
                 "error", "the symbol \'" + tp[1] + "\' is duplicate",
                 ret -> begin, ret -> end
