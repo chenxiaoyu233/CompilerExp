@@ -46,7 +46,7 @@ MCodeSymbol findSymbol(string s){
 
 int label_counter = 0;
 MCodeSymbol newLabel() {
-    string name = "<L" + to_string(++label_counter) + ">";
+    string name = "L" + to_string(++label_counter);
     MCodeSymbol sym{"label", name, 0};
     addSymbol(sym);
     return sym;

@@ -15,6 +15,7 @@ void BackEndImplement::grammerDefinition() {
         ret -> include(child[0]);
         ret -> include(child[1]);
         ret -> include({"LOD R2, R2-" + to_string(BP-LDT.front().front().addr+8)});
+        BP = LDT.front().front().addr - 8;
         ret -> include({"# end function"});
         ret -> include({""});
         closeScope();
@@ -37,6 +38,7 @@ void BackEndImplement::grammerDefinition() {
         ret -> include(child[0]);
         ret -> include(child[1]);
         ret -> include({"LOD R2, R2-" + to_string(BP-LDT.front().front().addr+8)});
+        BP = LDT.front().front().addr - 8;
         ret -> include({"# close scope"});
         ret -> include({""});
         closeScope();
