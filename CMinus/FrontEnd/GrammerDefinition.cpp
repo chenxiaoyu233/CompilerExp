@@ -19,9 +19,8 @@ void FrontEndImplement::grammerDefinition() {
         for (auto &tp: ret -> code) { 
             tp = {ch(0), tp[0], tp[1], tp[2]}; 
             if (ch(0) == "void") {
-                fprintf(stderr, "you can not use a void to define a variable\n");
                 ErrorReport(context).Report(
-                    "error", "you can not use a void to define a variable",
+                    "error", "you can not use \'void\' to define a variable",
                     child[0] -> begin, child[0] -> end
                 );
                 exit(233);
@@ -35,7 +34,10 @@ void FrontEndImplement::grammerDefinition() {
             for (auto s: tp) {
                 fprintf(stderr, "%s ", s.c_str());
             } fprintf(stderr, "\n");
-            fprintf(stderr, "the symbol %s is duplicate\n", tp[1].c_str());
+            ErrorReport(context).Report(
+                "error", "the symbol \'" + tp[1] + "\' is duplicate",
+                ret -> begin, ret -> end
+            );
             exit(233);
         }
     );
@@ -74,10 +76,22 @@ void FrontEndImplement::grammerDefinition() {
     PE("function-head -> type-specifier ID ( params )",
         /* generate function name */
         string func_name = ch(1);
-
+        /* check for main() */
+        if (func_name == "main") {
+            if (!(child[3] -> code).empty()) {
+                ErrorReport(context).Report(
+                    "error", "the \'main\' function should not have any parameters",
+                    child[1] -> begin, child[1] -> end
+                );
+                exit(233);
+            }
+        }
         /* check if function token duplicate */
         if (symbolDuplicate(func_name)) {
-            fprintf(stderr, "the function %s is duplicate\n", func_name.c_str());
+            ErrorReport(context).Report(
+                "error", "the function \'" + func_name + "\' is duplicate",
+                child[1] -> begin, child[1] -> end
+            );
             exit(233);
         }
         /* add the function to symbol table */
@@ -88,7 +102,10 @@ void FrontEndImplement::grammerDefinition() {
         for (auto tp: child[3] -> code) if (!symbolDuplicate(tp[1])) {
             addSymbol(MCodeSymbol{"var", tp[1], atoi(tp[2].c_str())});
         } else {
-            fprintf(stderr, "the sumbol %s is duplicate\n", tp[1].c_str());
+            ErrorReport(context).Report(
+                "error", "the symbol \'" + tp[1] + "\' is duplicate",
+                child[3] -> begin, child[3] -> end
+            );
             exit(233);
         }
         /* generate the MCode */
@@ -108,7 +125,10 @@ void FrontEndImplement::grammerDefinition() {
     PE("param-list -> param-type-list", ret -> include(child[0]););
     PE("param-type-list -> type-specifier param-id",
         if (ch(0) == "void") {
-            fprintf(stderr, "you can not use a void variable\n");
+            ErrorReport(context).Report(
+                "error", "you can not use a \'void\' variable",
+                child[0] -> begin, child[0] -> end
+            );
             exit(233);
         }
         ret -> include({"formal", ch(1, 0), ch(1, 1)});
@@ -250,6 +270,10 @@ void FrontEndImplement::grammerDefinition() {
         /* check if the symbol exists */
         if (!symbolExists(ch(0))) {
             fprintf(stderr, "var -> ID: the symbol %s does not exist\n", ch(0).c_str());
+            ErrorReport(context).Report(
+                "error", "the symbol %s does not exist",
+                ret -> begin, ret -> end
+            );
             exit(233);
         }
         /* check if the usage of this var is right */
@@ -265,7 +289,10 @@ void FrontEndImplement::grammerDefinition() {
     PE("var -> ID [ expression ]",
         /* check if the symbol exists */
         if (!symbolExists(ch(0))) {
-            fprintf(stderr, "var -> ID [ expression ] : the symbol %s does not exist\n", ch(0).c_str());
+            ErrorReport(context).Report(
+                "error", "the symbol %s does not exist",
+                child[0] -> begin, child[0] -> end
+            );
             exit(233);
         }
         /* check if the useage of this var is right */

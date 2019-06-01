@@ -40,13 +40,25 @@ string ErrorReport::ColorSelector(string type, string content) {
 }
 
 string ErrorReport::Red(string content) {
+#ifndef _WIN32
     return "\033[31m" + content + "\033[0m";
+#else
+    return content;
+#endif
 }
 
 string ErrorReport::Green(string content) {
+#ifndef _WIN32
+    return "\033[32m" + content + "\033[0m";
+#else
     return content;
+#endif
 }
 
 string ErrorReport::Yellow(string content) {
+#ifndef _WIN32
+    return "\033[33m" + content + "\033[0m";
+#else
     return content;
+#endif
 }
