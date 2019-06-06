@@ -189,6 +189,7 @@ bool FrontEnd::GrammerProcess() {
     // convert the lexReslut to a sentence that could be read by LR algorithm
     sentence.clear();
     for (auto item: lexResult) {
+        assert(s2i.count(item.symbolType));
         sentence.push_back(s2i[item.symbolType]);
     }
     for (int i = 0; i < k; ++i) sentence.push_back(s2i["-|"]);

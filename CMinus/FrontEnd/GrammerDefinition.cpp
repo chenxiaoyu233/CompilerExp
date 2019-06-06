@@ -250,15 +250,13 @@ void FrontEndImplement::grammerDefinition() {
         delete (string*)(au(0, "var"));
     );
     PE("expression -> var += expression",
-        ret -> include(child[0]);
         ret -> include(child[2]);
-        ret -> include({*(string*)(au(0, "var")), "=", ch(0), "+", ch(2)});
+        ret -> include({*(string*)(au(0, "var")), "=", *(string*)(au(0, "var")), "+", ch(2)});
         delete (string*)(au(0, "var"));
     );
-    PE("expression -> var −= expression",
-        ret -> include(child[0]);
+    PE("expression -> var -= expression",
         ret -> include(child[2]);
-        ret -> include({*(string*)(au(0, "var")), "=", ch(0), "-", ch(2)});
+        ret -> include({*(string*)(au(0, "var")), "=", *(string*)(au(0, "var")), "-", ch(2)});
         delete (string*)(au(0, "var"));
     );
     PE("expression -> simple-expression", ret -> include(child[0]););

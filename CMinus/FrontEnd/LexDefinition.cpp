@@ -55,4 +55,8 @@ void FrontEndImplement::lexDefinition() {
 	lex -> AddLexicalItem("\\$}\\$", "}", true);
 	lex -> AddLexicalItem("\\$,\\$", ",", true);
 	lex -> AddLexicalItem("\\$;\\$", ";", true);
+    if (stop_at == "dfa") {
+        LogDFA();
+        exit(0);
+    }
 }

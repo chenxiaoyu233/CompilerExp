@@ -2,7 +2,7 @@
 #include "BackEndImplement.hpp"
 
 extern string stop_at;
-
+string file_name;
 string context;
 char *buffer;
 
@@ -11,7 +11,7 @@ int readFile () {
 	long lSize;
 	size_t result;
 
-	pFile = fopen ( "test.c" , "rb" );
+	pFile = fopen ( file_name.c_str() , "rb" );
 	if (pFile==NULL) {fputs ("File error",stderr); exit (1);}
 
 	// obtain file size:
@@ -80,14 +80,14 @@ namespace BackEnd {
 }
 
 int main(int argc, char **argv) {
-    if (argc > 1) stop_at = string(argv[1]);
+    if (argc > 1) file_name = string(argv[1]);
+    if (argc > 2) stop_at = string(argv[2]);
     input();
     FrontEndImplement Front(context);
     MCodeBase* ret = Front.EndToEnd(1, "program");
     if (ret == NULL) return 0;
     if (stop_at == "mcode") {
         ret -> output(stdout);
-        //fprintf(stderr, "\n\n");
         return 0;
     }
     if (stop_at == "mtree") {
