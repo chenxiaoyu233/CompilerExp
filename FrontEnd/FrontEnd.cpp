@@ -189,7 +189,10 @@ bool FrontEnd::GrammerProcess() {
     // convert the lexReslut to a sentence that could be read by LR algorithm
     sentence.clear();
     for (auto item: lexResult) {
-        assert(s2i.count(item.symbolType));
+        if (!s2i.count(item.symbolType)) {
+            fprintf(stderr, "the lex symbol \'%s\' you define dose not match any grammer symbol you define\n", item.symbolType.c_str());
+            assert(s2i.count(item.symbolType));
+        }
         sentence.push_back(s2i[item.symbolType]);
     }
     for (int i = 0; i < k; ++i) sentence.push_back(s2i["-|"]);
@@ -254,7 +257,7 @@ MCodeBase* FrontEnd::EndToEnd(int k, string start) {
     MCodeBase* ret = SemanticAnalysis(tree, cnt, errorCnt, warnCnt);
     if (errorCnt > 0 || warnCnt > 0) {
         fprintf(stderr, "%d errors generated, %d warnings generated\n", errorCnt, warnCnt);
-        return NULL;
+        if (errorCnt > 0) return NULL;
     }
     return ret;
 }

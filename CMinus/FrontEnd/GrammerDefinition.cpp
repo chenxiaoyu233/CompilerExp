@@ -17,7 +17,7 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include(child[1]);
         /* add the type infomation to the type-specifier */
         for (auto &tp: ret -> code) { 
-            tp = {ch(0), tp[0], tp[1], tp[2]}; 
+            tp = {ch(0), tp[0], tp[1], tp[2]};
             if (ch(0) == "void") {
                 ErrorReport(context).Report(
                     "error", "you can not use \'void\' to define a variable",
@@ -46,6 +46,11 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("var-decl-id -> ID",
         ret -> include({ch(0), "0", "0"});
+        ErrorReport(context).Report(
+            "warning", "variable \'" + ch(0) + "\' do not initalize",
+            child[0] -> begin, child[0] -> end
+        );
+        ret -> warnCnt += 1;
     );
     PE("var-decl-id -> ID = NUM",
         ret -> include({ch(0), "0", ch(2)});
@@ -65,9 +70,13 @@ void FrontEndImplement::grammerDefinition() {
     PE("fun-declaration -> function-head statement",
         ret -> include(child[0]);
         ret -> include(child[1]);
+        MCodeSymbol s = newVar("int", 0);
+        ret -> include({"var", s.name});
+        ret -> include({s.name, "=", "0"});
+        ret -> include({"return", s.name});
         ret -> include({"end"});
         /* close the current scope */
-        closeScope();
+        closeScope();    
     );
     PE("function-head -> type-specifier ID ( params )",
         /* generate function name */
@@ -300,6 +309,11 @@ void FrontEndImplement::grammerDefinition() {
         (ret -> info)["var"] = s;
     );
     PE("simple-expression -> simple-expression \\| or-expression",
+        ErrorReport(context).Report(
+            "error", "sorry, I have not implement this operator yet",
+            child[1] -> begin, child[1] -> end
+        );
+        ret -> errorCnt += 1;
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[0]);
         ret -> include(child[2]);
@@ -308,6 +322,11 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("simple-expression -> or-expression", ret -> include(child[0]););
     PE("or-expression -> or-expression & unary-rel-expression",
+        ErrorReport(context).Report(
+            "error", "sorry, I have not implement this operator yet",
+            child[1] -> begin, child[1] -> end
+        );
+        ret -> errorCnt += 1;
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[0]);
         ret -> include(child[2]);
@@ -316,6 +335,11 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("or-expression -> unary-rel-expression", ret -> include(child[0]););
     PE("unary-rel-expression -> ! unary-rel-expression",
+        ErrorReport(context).Report(
+            "error", "sorry, I have not implement this operator yet",
+            child[0] -> begin, child[0] -> end
+        );
+        ret -> errorCnt += 1;
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[1]);
         ret -> include({"var", tmp.name});
@@ -323,6 +347,11 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("unary-rel-expression -> rel-expression", ret -> include(child[0]););
     PE("rel-expression -> add-expression relop add-expression",
+        ErrorReport(context).Report(
+            "error", "sorry, I have not implement this operator yet",
+            child[1] -> begin, child[1] -> end
+        );
+        ret -> errorCnt += 1;
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[0]);
         ret -> include(child[2]);
@@ -347,6 +376,13 @@ void FrontEndImplement::grammerDefinition() {
     PE("addop -> +", ret -> include({"+"}););
     PE("addop -> -", ret -> include({"-"}););
     PE("term -> term mulop unary-expression",
+        if (ch(1) == "%") {
+            ErrorReport(context).Report(
+                "error", "sorry, I have not implement this operator yet",
+                child[1] -> begin, child[1] -> end
+            );
+            ret -> errorCnt += 1;
+        }
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[0]);
         ret -> include(child[2]);
@@ -389,6 +425,13 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include({tmp.name, "=", "0"});
     );
     PE("call -> ID ( args )",
+        if (!symbolExists(ch(0))) {
+            ErrorReport(context).Report(
+                "error", "the function \'" + ch(0) + "\' does not exist",
+                child[0] -> begin, child[0] -> end
+            );
+            ret -> errorCnt += 1;
+        }
         ret -> include(child[2]);
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include({"var", tmp.name});
