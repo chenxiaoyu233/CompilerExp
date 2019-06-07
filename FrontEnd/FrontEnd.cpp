@@ -72,7 +72,7 @@ void FrontEnd::indexSymbols(HumanGrammer hg, map<string, int> &s2i, map<int, str
     /* Debug */
 }
 
-FrontEnd::FrontEnd(string context):context(context) {
+FrontEnd::FrontEnd(string context, string node_dump, string trans_dump):context(context), node_dump(node_dump), trans_dump(trans_dump) {
     s2i.clear(); i2s.clear();
     tree = NULL;
     lex = NULL;
@@ -198,12 +198,22 @@ bool FrontEnd::GrammerProcess() {
     for (int i = 0; i < k; ++i) sentence.push_back(s2i["-|"]);
     
     /* dump the LR table */
-    //GenerateLRTable(g, k, "NODE.DUMP", "TRANS.DUMP");
+    if (node_dump != "" && trans_dump != "") {
+        FILE *node = fopen(node_dump.c_str(), "r");
+        FILE *trans = fopen(trans_dump.c_str(), "r");
+        bool needBuildTable = node == NULL || trans == NULL;
+        fclose(node); fclose(trans);
+        if (needBuildTable) {
+            fprintf(stderr, "can not find the LR Table\n");
+            fprintf(stderr, "rebuilding ... this may take some time\n");
+            GenerateLRTable(g, k, node_dump.c_str(), trans_dump.c_str());
+        }
+    }
     
     // generate the parse tree
     int errorAt = -233;
-    //tree = Parse(g, sentence, k, errorAt);
-    tree = ParseWithLRTable(g, sentence, k, errorAt, "NODE.DUMP", "TRANS.DUMP");
+    if (node_dump == "" || trans_dump == "") tree = Parse(g, sentence, k, errorAt);
+    else tree = ParseWithLRTable(g, sentence, k, errorAt, node_dump.c_str(), trans_dump.c_str());
     if (errorAt != -233) { /* error happens */
         flag &= this -> grammerErrorHandler(errorAt);
     }

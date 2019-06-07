@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     if (argc > 1) file_name = string(argv[1]);
     if (argc > 2) stop_at = string(argv[2]);
     input();
-    FrontEndImplement Front(context);
+    FrontEndImplement Front(context, "FRONT_NODE.DUMP", "FRONT_TRANS.DUMP");
     MCodeBase* ret = Front.EndToEnd(1, "program");
     if (ret == NULL) return 0;
     if (stop_at == "mcode") {
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     mcode = ret -> toString();
-    BackEnd::BackEndImplement Back(mcode);
+    BackEnd::BackEndImplement Back(mcode, "BACK_NODE.DUMP", "BACK_TRANS.DUMP");
     entry = BackEnd::BackEndImplement("var <ret> 0 0\n").EndToEnd(1, "program");
     ret = Back.EndToEnd(1, "program");
     //Back.LogParseTree();

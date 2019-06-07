@@ -11,7 +11,8 @@ namespace BackEnd{
         virtual bool AfterLex();
 
     public:
-         BackEndImplement(string context):FrontEnd(context) {}
+        BackEndImplement(string context, string node_dump = "", string trans_dump = "")
+        :FrontEnd(context, node_dump, trans_dump) {}
     };
 }
 #endif

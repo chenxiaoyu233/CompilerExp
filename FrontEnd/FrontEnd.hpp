@@ -81,8 +81,9 @@ protected:
     vector<MCodeBase*> semantic;
     LexicalAnalyzer *lex;
     int k;
+    string node_dump, trans_dump;
 
-    FrontEnd(string context);
+    FrontEnd(string context, string node_dump = "", string trans_dump = "");
     ~FrontEnd();
     
     /* AUX Functions (you should not touch these functions) */

@@ -10,7 +10,8 @@ class FrontEndImplement: public FrontEnd {
     virtual bool AfterLex();
     
 public:
-     FrontEndImplement(string context):FrontEnd(context) {}
+     FrontEndImplement(string context, string node_dump = "", string trans_dump = "")
+        :FrontEnd(context, node_dump, trans_dump) {}
 };
 
 #endif
