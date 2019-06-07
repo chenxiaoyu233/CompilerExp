@@ -352,24 +352,35 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("unary-rel-expression -> rel-expression", ret -> include(child[0]););
     PE("rel-expression -> add-expression relop add-expression",
-        ErrorReport(context).Report(
-            "error", "sorry, I have not implement this operator yet",
-            child[1] -> begin, child[1] -> end
-        );
-        ret -> errorCnt += 1;
         MCodeSymbol tmp = newVar("int", 0);
+        MCodeSymbol flag = newVar("int", 0);
+        MCodeSymbol val = newVar("int", 0);
+        MCodeSymbol L1 = newLabel();
+        MCodeSymbol L2 = newLabel();
         ret -> include(child[0]);
         ret -> include(child[2]);
         ret -> include({"var", tmp.name});
-        ret -> include({tmp.name, "=", ch(0), ch(1), ch(2)});
+        ret -> include({"var", flag.name});
+        ret -> include({"var", val.name});
+        ret -> include({val.name, "=", ch(1, 0)});
+        ret -> include({tmp.name, "=", ch(0), "-", ch(2)});
+        ret -> include({flag.name, "=", "TST", tmp.name});
+        ret -> include({flag.name, "=", flag.name, "-", val.name});
+        ret -> include({ch(1, 1), flag.name, "goto", L1.name});
+        ret -> include({val.name, "=", "0"});
+        ret -> include({"goto", L2.name});
+        ret -> include({"label", L1.name});
+        ret -> include({val.name, "=", "1"});
+        ret -> include({"label", L2.name});
+        ret -> include({flag.name, "=", val.name});
     );
     PE("rel-expression -> add-expression", ret -> include(child[0]););
-    PE("relop -> <=", ret -> include({"<="}););
-    PE("relop -> <", ret -> include({"<"}););
-    PE("relop -> >", ret -> include({">"}););
-    PE("relop -> >=", ret -> include({">="}););
-    PE("relop -> ==", ret -> include({"=="}););
-    PE("relop -> !=", ret -> include({"!="}););
+    PE("relop -> <=", ret -> include({"2", "if"}););
+    PE("relop -> <", ret -> include({"1", "ifz"}););
+    PE("relop -> >", ret -> include({"2", "ifz"}););
+    PE("relop -> >=", ret -> include({"1", "if"}););
+    PE("relop -> ==", ret -> include({"0", "ifz"}););
+    PE("relop -> !=", ret -> include({"0", "if"}););
     PE("add-expression -> add-expression addop term",
         MCodeSymbol tmp = newVar("int", 0);
         ret -> include(child[0]);

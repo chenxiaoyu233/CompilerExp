@@ -126,6 +126,18 @@ void BackEndImplement::grammerDefinition() {
         ret -> include({"STO " + memVar(ch(0)) + ", R4"});
         ret -> include({""});
     );
+    PE("simple-statement -> ID = REG ( NUM )",
+        ret -> include({"#", ch(0), ch(1), ch(2), ch(3), ch(4), ch(5)});
+        ret -> include({"STO " + memVar(ch(0)) + ", R" + ch(4)});
+        ret -> include({""});
+    );
+    PE("simple-statement -> ID = TST ID",
+        ret -> include({"#", ch(0), ch(1), ch(2), ch(3)});
+        ret -> include({"LOD R4, " + memVar(ch(3))});
+        ret -> include({"TST R4"});
+        ret -> include({"STO " + memVar(ch(0)) + ", R0"});
+        ret -> include({""});
+    );
     PE("simple-statement -> label ID",
         ret -> include({"#", ch(0), ch(1)});
         ret -> include({ch(1) + ":"});
@@ -140,7 +152,8 @@ void BackEndImplement::grammerDefinition() {
         ret -> include({"#", ch(0), ch(1), ch(2), ch(3)});
         ret -> include({"LOD R4, " + memVar(ch(1))});
         ret -> include({"TST R4"});
-        ret -> include({"JNZ " + ch(3)});
+        ret -> include({"JGZ " + ch(3)});
+        ret -> include({"JLZ " + ch(3)});
         ret -> include({""});
     );
     PE("simple-statement -> ifz ID goto ID",
