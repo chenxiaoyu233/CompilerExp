@@ -76,7 +76,7 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include({"return", s.name});
         ret -> include({"end"});
         /* close the current scope */
-        closeScope();    
+        closeScope();
     );
     PE("function-head -> type-specifier ID ( params )",
         /* generate function name */
@@ -186,6 +186,11 @@ void FrontEndImplement::grammerDefinition() {
         ret -> include({"#begin"});
         ret -> include(child[0]);
         ret -> include({"#end"});
+    );
+    PE("statement -> out-stmt", ret -> include(child[0]););
+    PE("out-stmt -> out ( expression ) ;",
+        ret -> include(child[1]);
+        ret -> include({"out", ch(1)});
     );
     //PE("statement -> break-stmt", ret -> include(child[0]););
     PE("expression-stmt -> expression ;", ret -> include(child[0]););

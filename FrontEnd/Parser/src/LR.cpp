@@ -204,7 +204,7 @@ namespace LR {
 
         fprintf(stderr, "Could not read the end of program\n");
         return NULL;
-    } 
+    }
 
     int parseTreeLog(ParseTree *rt, int &cnt, vector<string> &content, vector<string> *lexResult, int &leafCnt) {
         int now = ++cnt;

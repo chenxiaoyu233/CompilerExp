@@ -150,6 +150,12 @@ void BackEndImplement::grammerDefinition() {
         ret -> include({"JEZ " + ch(3)});
         ret -> include({""});
     );
+    PE("simple-statement -> out ID",
+        ret -> include({"#", ch(0), ch(1)});
+        ret -> include({"LOD R15, " + memVar(ch(1))});
+        ret -> include({"OUT"});
+        ret -> include({""});
+    );
     PE("simple-statement -> return ID",
         ret -> include({"#", ch(0), ch(1)});
         ret -> include({"LOD R4, " + memVar(ch(1))});

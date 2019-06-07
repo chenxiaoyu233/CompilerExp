@@ -33,6 +33,7 @@ void BackEndImplement::lexDefinition() {
 	lex -> AddLexicalItem("\\$if\\$", "if", true, keywordLevel);
 	lex -> AddLexicalItem("\\$ifz\\$", "ifz", true, keywordLevel);
 	lex -> AddLexicalItem("\\$goto\\$", "goto", true, keywordLevel);
+    lex -> AddLexicalItem("\\$out\\$", "out", true, keywordLevel);
     /* operator */
 	lex -> AddLexicalItem("\\$+\\$", "+", true);
 	lex -> AddLexicalItem("\\$-\\$", "-", true);
