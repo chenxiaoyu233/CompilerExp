@@ -206,6 +206,204 @@ namespace LR {
         return NULL;
     }
 
+    void GenerateLRTable(Grammer G, int k, string node_dump, string trans_dump) {
+        /* init the total charactor table */
+        vector<Character> tot; tot.clear();
+        for (auto c: G.I) tot.push_back(c);
+        for (auto c: G.T) tot.push_back(c);
+        /* counter for StateSet */
+        int cnt = -1;
+        map<StateSet, int, StateSetCmp> mp; mp.clear();
+        vector<StateSet> vec; vec.clear();
+        vector<String> edge;
+        StateSet S0, SS; 
+        S0.insert(State{0, -1, characterPow(BUTTOM, k)});
+        extendStateSet(G, SS, S0, k);
+        queue<StateSet> q; q.push(SS);
+        mp[SS] = ++cnt; 
+        vec.push_back(SS);
+        while(!q.empty()) {
+            StateSet tt = q.front(); q.pop();
+            for (auto c: tot) {
+                StateSet t0, t1;
+                t0 = nextStep(G, tt, c);
+                extendStateSet(G, t1, t0, k);
+                if (!mp.count(t1)) {
+                    mp[t1] = ++cnt;
+                    q.push(t1);
+                    vec.push_back(t1);
+                }
+                edge.push_back({mp[tt], c, mp[t1]});
+            }
+        }
+
+        /* dump the nodes to the file */
+        FollowSet Z, *Zp = new FollowSet[G.P.size()];
+        FILE *node = fopen(node_dump.c_str(), "w");
+        fprintf(node, "%d\n", cnt);
+        for (int i = 0; i <= cnt; ++i) {
+            calcZ(G, vec[i], Z, k);
+            calcZp(G, vec[i], Zp);
+            int isconf = isConflict(G, Z, Zp);
+            if (isconf) {
+                fprintf(stderr, "LR: Grammer conflict");
+            }
+            State finS{0, 0, characterPow(BUTTOM, k)};
+            fprintf(node, "%d\n", isconf);
+            fprintf(node, "%d\n", vec[i].count(finS) > 0);
+            fprintf(node, "%zu\n", Z.size());
+            for (auto &s: Z) {
+                fprintf(node, "%zu ", s.size());
+                for (auto c: s) fprintf(node, "%d ", c);
+                fprintf(node, "\n");
+            }
+            for (int p = 0; p < G.P.size(); ++p) {
+                fprintf(node, "%zu\n", Zp[p].size());
+                for (auto &s: Zp[p]) {
+                    fprintf(node, "%zu ", s.size());
+                    for (auto c: s) fprintf(node, "%d ", c);
+                    fprintf(node, "\n");
+                }
+            }
+        }
+        delete[] Zp;
+        fclose(node);
+
+        /* dump the edge to the file */
+        FILE *trans = fopen(trans_dump.c_str(), "w");
+        fprintf(trans, "%zu\n", edge.size());
+        for (auto &s: edge) {
+            for (auto c: s) fprintf(node, "%d ", c);
+            fprintf(node, "\n");
+        }
+        fclose(trans);
+    }
+
+    struct Node{
+        bool isConflict;
+        bool accept;
+        FollowSet Z;
+        vector<FollowSet> Zp;
+    };
+
+    void recoverTableFromFile(Grammer &G, vector<Node> &nodes, vector<map<int,int> > &edges, string node_dump, string trans_dump) {
+        nodes.clear(); edges.clear();
+        /* recover nodes */
+        FILE *node = fopen(node_dump.c_str(), "r");
+        int cnt = 0; fscanf(node, "%d", &cnt);
+        for (int i = 0; i <= cnt; ++i) {
+            Node cur; cur.Z.clear(); cur.Zp.clear();
+            fscanf(node, "%d", &cur.isConflict);
+            fscanf(node, "%d", &cur.accept);
+            int n = 0; fscanf(node, "%d", &n);
+            for (int j = 0; j < n; ++j) {
+                String s; s.clear();
+                int l = 0; fscanf(node, "%d", &l);
+                for (int k = 0; k < l; ++k) {
+                    int c = 0; fscanf(node, "%d", &c);
+                    s.push_back(c);
+                }
+                cur.Z.insert(s);
+            }
+            for (size_t now = 0; now < G.P.size(); ++now) {
+                FollowSet flo; flo.clear();
+                int n = 0; fscanf(node, "%d", &n);
+                for (int j = 0; j < n; ++j) {
+                    String s; s.clear();
+                    int l = 0; fscanf(node, "%d", &l);
+                    for (int k = 0; k < l; ++k) {
+                        int c = 0; fscanf(node, "%d", &c);
+                        s.push_back(c);
+                    }
+                    flo.insert(s);
+                }
+                cur.Zp.push_back(flo);
+            }
+            nodes.push_back(cur);
+        }
+        fclose(node);
+
+        /* recover trans */
+        edges.resize(cnt+1);
+        for (int i = 0; i <= cnt; ++i) edges[i].clear();
+        FILE *trans = fopen(trans_dump.c_str(), "r");
+        cnt = 0; fscanf(trans, "%d", &cnt);
+        for (int i = 0; i < cnt; ++i) {
+            int from, to, c;
+            fscanf(trans, "%d%d%d", &from, &c, &to);
+            edges[from][c] = to;
+        }
+        fclose(trans);
+    }
+
+    // here, the G and s are both adjusted
+    ParseTree* ParseWithLRTable(Grammer G, String s, int k, int &errorAt, string node_dump, string trans_dump) {
+        vector<Node> nodes;
+        vector<map<int,int> > edges;
+        recoverTableFromFile(G, nodes, edges, node_dump, trans_dump);
+        stack<Character>  CS; // Character Stack
+        stack<int>        SS; // State Set Stack
+        stack<ParseTree*> TS; // Parse Root Stack
+        SS.push(0);
+        int pt = -1; // pointer to Character in s
+        while (pt + k < s.size()) {
+            // STEP 1
+            int Sp = SS.top();
+            FollowSet &Z = nodes[Sp].Z;
+            vector<FollowSet> &Zp = nodes[Sp].Zp;
+            // STEP 2
+            if (nodes[Sp].isConflict) {
+                fprintf(stderr, "LR: Grammer conflict at position: %d\n", pt);
+                errorAt = pt;
+                return NULL;
+            }
+            bool isMatch = false;
+            String sbs = subString(s, pt+1, pt+k);
+            if (Z.count(sbs)) {
+                ++pt; CS.push(s[pt]);
+                TS.push(new ParseTree(s[pt])); // new node on parse tree
+                isMatch = true;
+            } else {
+                for (int i = 0; i < G.P.size(); ++i) if (Zp[i].count(sbs)) {
+                    isMatch = true;
+                    String follow = *(Zp[i].find(sbs));
+                    int cnt = G.P[i].rhs.size();
+                    vector<ParseTree*> tmpPtr;
+                    while (cnt--) {
+                        tmpPtr.push_back(TS.top());
+                        CS.pop(); SS.pop(); TS.pop();
+                    }
+                    reverse(tmpPtr.begin(), tmpPtr.end());
+                    TS.push(new ParseTree(i, G.P[i].lhs, tmpPtr));
+                    // Debug
+                    /*
+                       ParseTree* tmpTree = TS.top();
+                       ParseTreeLog(tmpTree, content);
+                       */
+                    CS.push(G.P[i].lhs);
+                    break;
+                }
+            }
+            // STEP3
+            if (!isMatch) {
+                fprintf(stderr, "LR: Wrong Syntax at position: %d\n", pt+1);
+                errorAt = pt+1;
+                return NULL;
+            }
+            SS.push(edges[SS.top()][CS.top()]);
+
+            if (pt + k + 1 == s.size()) {
+                State finS{0, 0, characterPow(BUTTOM, k)};
+                if (nodes[SS.top()].accept) { // accept
+                    return TS.top();
+                }
+            }
+        }
+
+        fprintf(stderr, "Could not read the end of program\n");
+        return NULL;
+    }
+
     int parseTreeLog(ParseTree *rt, int &cnt, vector<string> &content, vector<string> *lexResult, int &leafCnt) {
         int now = ++cnt;
         if (content.empty())

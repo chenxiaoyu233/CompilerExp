@@ -39,6 +39,24 @@ namespace LR {
         }
     };
     typedef set<State, StateCmp> StateSet;
+    struct StateSetCmp {
+        bool operator () (const StateSet &a, const StateSet &b) const {
+            StateCmp sp;
+            if (a.size() != b.size()) {
+                return a.size() < b.size();
+            }
+            vector<State> veca, vecb;
+            veca.clear(); vecb.clear();
+            for (auto s: a) veca.push_back(s); sort(veca.begin(), veca.end(), sp);
+            for (auto s: b) vecb.push_back(s); sort(vecb.begin(), vecb.end(), sp);
+            for (size_t i = 0; i < a.size(); ++i) {
+                if (sp(veca[i], vecb[i]) || sp(vecb[i], veca[i])) {
+                    return sp(veca[i], vecb[i]);
+                }
+            }
+            return false;
+        }
+    };
     struct Production { Character lhs; String rhs; };
     struct Grammer { vector<Production> P; set<Character> I, T, cE; }; // cE: could Empty
 
@@ -46,6 +64,9 @@ namespace LR {
 
     /* Main Functions */
     ParseTree* Parse(Grammer G, String s, int k, int &errorAt);
+    /* LR Table generator */
+    void GenerateLRTable(Grammer G, int k, string node_dump, string trans_dump);
+    ParseTree* ParseWithLRTable(Grammer G, String s, int k, int &errorAt, string node_dump, string trans_dump);
 
     /* Debug Logger */
     void ParseTreeLog(ParseTree *rt, vector<string> &content, vector<string> *lexResult);

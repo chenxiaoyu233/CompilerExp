@@ -197,9 +197,13 @@ bool FrontEnd::GrammerProcess() {
     }
     for (int i = 0; i < k; ++i) sentence.push_back(s2i["-|"]);
     
+    /* dump the LR table */
+    //GenerateLRTable(g, k, "NODE.DUMP", "TRANS.DUMP");
+    
     // generate the parse tree
     int errorAt = -233;
-    tree = Parse(g, sentence, k, errorAt);
+    //tree = Parse(g, sentence, k, errorAt);
+    tree = ParseWithLRTable(g, sentence, k, errorAt, "NODE.DUMP", "TRANS.DUMP");
     if (errorAt != -233) { /* error happens */
         flag &= this -> grammerErrorHandler(errorAt);
     }

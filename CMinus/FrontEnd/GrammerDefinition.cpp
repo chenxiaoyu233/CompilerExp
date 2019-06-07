@@ -189,8 +189,8 @@ void FrontEndImplement::grammerDefinition() {
     );
     PE("statement -> out-stmt", ret -> include(child[0]););
     PE("out-stmt -> out ( expression ) ;",
-        ret -> include(child[1]);
-        ret -> include({"out", ch(1)});
+        ret -> include(child[2]);
+        ret -> include({"out", ch(2)});
     );
     //PE("statement -> break-stmt", ret -> include(child[0]););
     PE("expression-stmt -> expression ;", ret -> include(child[0]););
