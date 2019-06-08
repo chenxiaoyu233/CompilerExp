@@ -174,7 +174,8 @@ void BackEndImplement::grammerDefinition() {
         ret -> include({"LOD R4, " + memVar(ch(1))});
         ret -> include({"STO " + memVar("ret-data-addr") + ", R4"});
         ret -> include({"LOD R3, " + memVar("ret-ip-addr")});
-        DescribeTableItem v = find("ret-data-addr");
+        bool isGlobal = false;
+        DescribeTableItem v = find("ret-data-addr", isGlobal);
         ret -> include({"LOD R2, R2-" + to_string(BP - v.addr)});
         ret -> include({"JMP R3"});
         ret -> include({""});

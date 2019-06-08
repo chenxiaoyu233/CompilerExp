@@ -16,7 +16,7 @@ void startScope();
 void closeScope();
 bool isDuplicate(string name);
 bool exists(string name);
-DescribeTableItem find(string name);
+DescribeTableItem find(string name, bool &isGlobal);
 void addVar(string name, int addr = -1);
 string memVar(string name);
 

@@ -21,9 +21,15 @@ namespace BackEnd {
         return false;
     }
 
-    DescribeTableItem find(string name) {
-        for (auto block: LDT) for (auto item: block) if (item.name == name) return item;
-        for (auto item: GDT) if (item.name == name) return item;
+    DescribeTableItem find(string name, bool &isGlobal) {
+        for (auto block: LDT) for (auto item: block) if (item.name == name) {
+            isGlobal = false;
+            return item;
+        }
+        for (auto item: GDT) if (item.name == name) {
+            isGlobal = true;
+            return item;
+        }
     }
 
     void addVar(string name, int addr) {
@@ -37,8 +43,10 @@ namespace BackEnd {
             fprintf(stderr, "var %s does not exist\n", name.c_str());
             exit(233);
         }
-        DescribeTableItem v = find(name);
-        return "(R2-" + to_string(BP - v.addr) + ")";
+        bool isGlobal = false;
+        DescribeTableItem v = find(name, isGlobal);
+        if (!isGlobal) return "(R2-" + to_string(BP - v.addr) + ")";
+        else return "(R12+" + to_string(v.addr) + ")";
     }
 
 }

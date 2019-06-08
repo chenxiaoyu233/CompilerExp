@@ -47,6 +47,9 @@ namespace BackEnd {
 #include "DescribeTable.hpp"
     MCodeBase* CompleteIt(MCodeBase* ori) {
         MCodeBase* ret = new MCodeBase();
+        ret -> include({"# init Base (R12)"});
+        ret -> include({"LOD R12, STACK"});
+        ret -> include({""});
         ret -> include({"# init BP (R2)"});
         ret -> include({"LOD R2, STACK"});
         ret -> include({""});
