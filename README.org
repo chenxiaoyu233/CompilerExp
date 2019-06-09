@@ -109,3 +109,28 @@
           (ret -> info)["var"] = s;
       );
    #+END_SRC
+** A CMinus Language
+   using the FrontEnd framework, I build a $C^-$ language.
+
+* How to deploy the CMinus language
+  First I have many options for compile the whole project.
+  #+BEGIN_SRC bash
+  option(TestLex "compile to test Lexical Analyzer" OFF)
+  option(TestParser "compile to test Parser" OFF)
+  option(TestCMinusFront "compile to test CMinus FrontEnd" OFF)
+  option(TestCMinus "compile to test CMinus" OFF)
+  option(NDEBUG "turn off debug" OFF)
+  #+END_SRC
+  If you only want to compile CMinus language. 
+  you could use the following command.
+  #+BEGIN_SRC bash
+  cmake -DTestCMinus=ON .
+  make && make install
+  #+END_SRC
+  Then the executable target *TestCMinus* will be complied and installed to CMinus/test/Debug.
+** the useage for TestCMinus
+   | command                  | meaning                             |
+   | ./TestCMinus XXX.c lex   | performing the lex stage on XXX.c   |
+   | ./TestCMinus XXX.c mcode | generate Midle stage code for XXX.c |
+   | ./TestCMinus XXX.c mtree | generate grammer tree for XXX.c     |
+   | ./TestCMinus XXX.c       | generate target code for XXX.c      |
