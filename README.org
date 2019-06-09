@@ -131,6 +131,6 @@
 ** the useage for TestCMinus
    | command                  | meaning                             |
    | ./TestCMinus XXX.c lex   | performing the lex stage on XXX.c   |
-   | ./TestCMinus XXX.c mcode | generate Midle stage code for XXX.c |
+   | ./TestCMinus XXX.c mcode | generate middle stage code for XXX.c |
    | ./TestCMinus XXX.c mtree | generate grammer tree for XXX.c     |
    | ./TestCMinus XXX.c       | generate target code for XXX.c      |
